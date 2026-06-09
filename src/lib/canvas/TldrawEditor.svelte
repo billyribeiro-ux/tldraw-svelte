@@ -34,6 +34,7 @@
 	import '$lib/shapes/register'; // registers Svelte renderers for real shapes
 	import './tldraw-fonts.css'; // @font-face for the real tldraw fonts (global, once)
 	import { fontAssetUrls } from './font-urls';
+	import { setupLocalPersistence } from '$lib/persistence/local-db';
 	import type { Snippet } from 'svelte';
 
 	let {
@@ -119,44 +120,13 @@
 		const ro = new ResizeObserver(() => ed.updateViewportScreenBounds(container));
 		ro.observe(container);
 
-		// Persistence: load the saved snapshot, then debounce-save on every change.
-		// Uses SvelteKit's own server route + SQLite — no external backend.
-		let saveTimer: ReturnType<typeof setTimeout> | undefined;
-		let stopListening: (() => void) | undefined;
-		if (persistenceKey) {
-			const url = `/api/documents/${encodeURIComponent(persistenceKey)}`;
-
-			// Register the change->save listener SYNCHRONOUSLY so no early edits are
-			// missed (the load fetch below is async and would otherwise register the
-			// listener too late). Loading a snapshot also triggers the listener,
-			// which simply re-saves the same data — harmless.
-			stopListening = ed.store.listen(
-				() => {
-					clearTimeout(saveTimer);
-					saveTimer = setTimeout(() => {
-						const snapshot = ed.store.getStoreSnapshot();
-						fetch(url, {
-							method: 'PUT',
-							headers: { 'content-type': 'application/json' },
-							body: JSON.stringify({ snapshot })
-						}).catch((err) => console.error('[persistence] save failed', err));
-					}, 600);
-				},
-				{ scope: 'document' }
-			);
-
-			// Load any previously-saved snapshot.
-			fetch(url)
-				.then((r) => (r.ok ? r.json() : null))
-				.then((doc) => {
-					if (doc?.snapshot) ed.store.loadStoreSnapshot(doc.snapshot);
-				})
-				.catch((err) => console.error('[persistence] load failed', err));
-		}
+		// Persistence: browser IndexedDB (no backend) — loads the saved snapshot and
+		// debounce-saves on every change. Survives reloads and deploys to Vercel as a
+		// static-ish app with no server (the SQLite server route was removed).
+		const stopPersistence = persistenceKey ? setupLocalPersistence(ed, persistenceKey) : undefined;
 
 		return () => {
-			clearTimeout(saveTimer);
-			stopListening?.();
+			stopPersistence?.();
 			ro.disconnect();
 			ed.dispose();
 			holder.editor = undefined;

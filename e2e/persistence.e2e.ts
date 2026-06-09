@@ -1,8 +1,8 @@
 import { expect, test } from '@playwright/test';
 
 // Persistence evidence: a real geo shape drawn in the browser is persisted to
-// SQLite via the SvelteKit +server route and restored on reload — no external
-// backend.
+// browser IndexedDB and restored on reload — fully client-side, no backend
+// (Vercel-friendly).
 
 declare global {
 	interface Window {
@@ -10,7 +10,7 @@ declare global {
 	}
 }
 
-test('persists shapes across reloads via SvelteKit + SQLite', async ({ page }) => {
+test('persists shapes across reloads via browser IndexedDB', async ({ page }) => {
 	await page.goto('/?doc=e2e-persist');
 	await page.waitForFunction(() => !!window.editor, undefined, { timeout: 15000 });
 
