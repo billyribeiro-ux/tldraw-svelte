@@ -1,0 +1,23 @@
+{
+	"name": "@tldraw/editor",
+	"description": "tldraw infinite canvas SDK (editor core, Svelte port — framework-free logic only).",
+	"version": "5.0.1",
+	"license": "MIT",
+	"type": "module",
+	"main": "./src/index.ts",
+	"types": "./src/index.ts",
+	"files": [],
+	"scripts": {},
+	"dependencies": {
+		"@tldraw/state": "workspace:*",
+		"@tldraw/store": "workspace:*",
+		"@tldraw/tlschema": "workspace:*",
+		"@tldraw/utils": "workspace:*",
+		"@tldraw/validate": "workspace:*",
+		"classnames": "^2.5.1",
+		"eventemitter3": "^4.0.7",
+		"idb": "^7.1.1",
+		"is-plain-object": "^5.0.0",
+		"rbush": "^3.0.1"
+	}
+}

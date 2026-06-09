@@ -1,0 +1,122 @@
+/* Real tldraw fonts, self-hosted from static/tldraw-fonts/ (Shantell Sans = the
+   "draw" font; IBM Plex Sans / Serif / Mono). @font-face is inherently global and
+   one-time, so it lives in this dedicated stylesheet imported once by
+   TldrawEditor.svelte — not a per-component scoped rule and not a tldraw.css blob.
+   Families + weights/styles match tldraw's shipped faces and the --tl-font-* tokens,
+   so UI text and shape text render in the genuine fonts. */
+
+@font-face {
+	font-family: 'tldraw_draw';
+	src: url('/tldraw-fonts/Shantell_Sans-Informal_Regular.woff2') format('woff2');
+	font-weight: normal;
+	font-style: normal;
+	font-display: swap;
+}
+@font-face {
+	font-family: 'tldraw_draw';
+	src: url('/tldraw-fonts/Shantell_Sans-Informal_Bold.woff2') format('woff2');
+	font-weight: bold;
+	font-style: normal;
+	font-display: swap;
+}
+@font-face {
+	font-family: 'tldraw_draw';
+	src: url('/tldraw-fonts/Shantell_Sans-Informal_Regular_Italic.woff2') format('woff2');
+	font-weight: normal;
+	font-style: italic;
+	font-display: swap;
+}
+@font-face {
+	font-family: 'tldraw_draw';
+	src: url('/tldraw-fonts/Shantell_Sans-Informal_Bold_Italic.woff2') format('woff2');
+	font-weight: bold;
+	font-style: italic;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: 'tldraw_sans';
+	src: url('/tldraw-fonts/IBMPlexSans-Medium.woff2') format('woff2');
+	font-weight: normal;
+	font-style: normal;
+	font-display: swap;
+}
+@font-face {
+	font-family: 'tldraw_sans';
+	src: url('/tldraw-fonts/IBMPlexSans-Bold.woff2') format('woff2');
+	font-weight: bold;
+	font-style: normal;
+	font-display: swap;
+}
+@font-face {
+	font-family: 'tldraw_sans';
+	src: url('/tldraw-fonts/IBMPlexSans-MediumItalic.woff2') format('woff2');
+	font-weight: normal;
+	font-style: italic;
+	font-display: swap;
+}
+@font-face {
+	font-family: 'tldraw_sans';
+	src: url('/tldraw-fonts/IBMPlexSans-BoldItalic.woff2') format('woff2');
+	font-weight: bold;
+	font-style: italic;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: 'tldraw_serif';
+	src: url('/tldraw-fonts/IBMPlexSerif-Medium.woff2') format('woff2');
+	font-weight: normal;
+	font-style: normal;
+	font-display: swap;
+}
+@font-face {
+	font-family: 'tldraw_serif';
+	src: url('/tldraw-fonts/IBMPlexSerif-Bold.woff2') format('woff2');
+	font-weight: bold;
+	font-style: normal;
+	font-display: swap;
+}
+@font-face {
+	font-family: 'tldraw_serif';
+	src: url('/tldraw-fonts/IBMPlexSerif-MediumItalic.woff2') format('woff2');
+	font-weight: normal;
+	font-style: italic;
+	font-display: swap;
+}
+@font-face {
+	font-family: 'tldraw_serif';
+	src: url('/tldraw-fonts/IBMPlexSerif-BoldItalic.woff2') format('woff2');
+	font-weight: bold;
+	font-style: italic;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: 'tldraw_mono';
+	src: url('/tldraw-fonts/IBMPlexMono-Medium.woff2') format('woff2');
+	font-weight: normal;
+	font-style: normal;
+	font-display: swap;
+}
+@font-face {
+	font-family: 'tldraw_mono';
+	src: url('/tldraw-fonts/IBMPlexMono-Bold.woff2') format('woff2');
+	font-weight: bold;
+	font-style: normal;
+	font-display: swap;
+}
+@font-face {
+	font-family: 'tldraw_mono';
+	src: url('/tldraw-fonts/IBMPlexMono-MediumItalic.woff2') format('woff2');
+	font-weight: normal;
+	font-style: italic;
+	font-display: swap;
+}
+@font-face {
+	font-family: 'tldraw_mono';
+	src: url('/tldraw-fonts/IBMPlexMono-BoldItalic.woff2') format('woff2');
+	font-weight: bold;
+	font-style: italic;
+	font-display: swap;
+}

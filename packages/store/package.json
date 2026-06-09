@@ -1,0 +1,22 @@
+{
+	"name": "@tldraw/store",
+	"description": "tldraw infinite canvas SDK (store).",
+	"version": "5.0.1",
+	"license": "MIT",
+	"main": "./src/index.ts",
+	"types": "./src/index.ts",
+	"type": "module",
+	"scripts": {},
+	"dependencies": {
+		"@tldraw/state": "workspace:*",
+		"@tldraw/utils": "workspace:*"
+	},
+	"peerDependencies": {
+		"react": "^18.2.0 || ^19.2.1"
+	},
+	"peerDependenciesMeta": {
+		"react": {
+			"optional": true
+		}
+	}
+}

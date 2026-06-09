@@ -1,0 +1,77 @@
+<script lang="ts">
+	// Top-left brand logo, in the slot where tldraw.com shows its logo. A rounded
+	// dark badge with a clean geometric pencil/draw mark + the wordmark. Pure SVG,
+	// theme-token coloured, links out like the original.
+</script>
+
+<a
+	class="tlui-logo"
+	href="https://tldraw.dev"
+	target="_blank"
+	rel="noopener noreferrer"
+	aria-label="tldraw"
+>
+	<span class="tlui-logo__mark" aria-hidden="true">
+		<svg viewBox="0 0 32 32" width="20" height="20" role="img">
+			<defs>
+				<linearGradient id="tlui-logo-grad" x1="0" y1="0" x2="1" y2="1">
+					<stop offset="0" stop-color="#5b7cff" />
+					<stop offset="1" stop-color="#4465e9" />
+				</linearGradient>
+			</defs>
+			<!-- Rounded square badge -->
+			<rect x="0" y="0" width="32" height="32" rx="9" fill="url(#tlui-logo-grad)" />
+			<!-- Pencil / draw nib stroke -->
+			<path
+				d="M10 22.5 L19.5 13 a2.6 2.6 0 0 1 3.7 3.7 L13.7 26 L9 27 Z"
+				fill="#fff"
+				opacity="0.96"
+			/>
+			<!-- Nib tip accent -->
+			<path d="M9 27 L13.7 26 L11.2 23.5 Z" fill="#1d1d1d" opacity="0.35" />
+			<!-- Top spark, gives it life -->
+			<circle cx="22" cy="10" r="1.6" fill="#fff" opacity="0.9" />
+		</svg>
+	</span>
+	<span class="tlui-logo__word">tldraw</span>
+</a>
+
+<style>
+	.tlui-logo {
+		display: inline-flex;
+		align-items: center;
+		gap: 9px;
+		height: 40px;
+		padding: 0 10px 0 6px;
+		text-decoration: none;
+		color: var(--tl-color-text, #1d1d1d);
+		font: 700 16px/1 var(--tl-font-sans, system-ui, sans-serif);
+		letter-spacing: -0.02em;
+		border-radius: var(--tl-radius-3, 9px);
+		transition: background 0.12s ease;
+	}
+	.tlui-logo:hover {
+		background: var(--tl-color-muted-2, rgba(0, 0, 0, 0.043));
+	}
+	.tlui-logo__mark {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 28px;
+		height: 28px;
+		filter: drop-shadow(0 1px 2px rgba(68, 101, 233, 0.35));
+	}
+	.tlui-logo__word {
+		background: linear-gradient(180deg, #2b2b2b, #111);
+		-webkit-background-clip: text;
+		background-clip: text;
+		color: transparent;
+	}
+	/* In dark mode the wordmark reads light. */
+	:global(.tl-theme__dark) .tlui-logo__word {
+		background: linear-gradient(180deg, #fff, #d8dde6);
+		-webkit-background-clip: text;
+		background-clip: text;
+		color: transparent;
+	}
+</style>

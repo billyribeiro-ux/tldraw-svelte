@@ -1,0 +1,13 @@
+{
+	"name": "@tldraw/state",
+	"description": "tldraw infinite canvas SDK (state).",
+	"version": "5.0.1",
+	"license": "MIT",
+	"main": "./src/index.ts",
+	"types": "./src/index.ts",
+	"type": "module",
+	"scripts": {},
+	"dependencies": {
+		"@tldraw/utils": "workspace:*"
+	}
+}
