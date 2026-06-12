@@ -14,6 +14,7 @@
 	import Shape from './Shape.svelte';
 	import SelectionOverlay from './SelectionOverlay.svelte';
 	import ScribbleOverlay from './ScribbleOverlay.svelte';
+	import BrushOverlay from './BrushOverlay.svelte';
 
 	const editor = getEditor();
 
@@ -119,6 +120,7 @@
 		{#each renderingShapes.current as r (r.id)}
 			<Shape id={r.id} shape={r.shape} index={r.index} opacity={r.opacity} />
 		{/each}
+		<BrushOverlay />
 		<SelectionOverlay />
 		<ScribbleOverlay />
 	</div>
