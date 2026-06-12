@@ -4,7 +4,12 @@
 	import { quickReactor } from '$lib/state-svelte/reactor.svelte';
 	import { getShapeComponent } from '$lib/shapes/registry';
 
-	let { id, shape, index }: { id: TLShapeId; shape: TLShape; index: number } = $props();
+	let {
+		id,
+		shape,
+		index,
+		opacity
+	}: { id: TLShapeId; shape: TLShape; index: number; opacity: number } = $props();
 
 	const editor = getEditor();
 
@@ -51,6 +56,7 @@
 	data-shape-type={shape.type}
 	data-shape-id={id}
 	style:z-index={index}
+	style:opacity
 	{@attach positionContainer}
 >
 	{#if ShapeComponent}

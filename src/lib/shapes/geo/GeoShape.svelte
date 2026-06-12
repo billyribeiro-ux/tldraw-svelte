@@ -3,19 +3,30 @@
 	import { getGeoShapePath, getDisplayValues, type GeoShapeUtil } from '@tldraw/tldraw';
 	import { getPerfectDashProps } from '@tldraw/editor';
 	import { getEditor } from '$lib/state-svelte';
+	import RichTextLabel from '../shared/RichTextLabel.svelte';
 
 	let { shape }: { shape: TLGeoShape } = $props();
 
 	const editor = getEditor();
 
 	// Real display values from the real GeoShapeUtil options (strokeColor,
-	// strokeWidth, fillColor, …) — exactly what the React GeoShapeBody read.
+	// strokeWidth, fillColor, plus the full set of label values) — exactly what the
+	// React GeoShapeBody + label read.
 	const util = $derived(editor.getShapeUtil(shape) as GeoShapeUtil);
-	const dv = $derived(getDisplayValues(util, shape) as {
-		strokeColor: string;
-		strokeWidth: number;
-		fillColor: string;
-	});
+	const dv = $derived(
+		getDisplayValues(util, shape) as {
+			strokeColor: string;
+			strokeWidth: number;
+			fillColor: string;
+			labelColor: string;
+			labelFontFamily: string;
+			labelFontSize: number;
+			labelLineHeight: number;
+			labelHorizontalAlign: string;
+			labelVerticalAlign: string;
+			labelPadding: number;
+		}
+	);
 
 	const scale = $derived(shape.props.scale);
 	const strokeWidth = $derived(dv.strokeWidth * scale);
@@ -76,6 +87,23 @@
 		/>
 	{/each}
 </svg>
+
+<!-- Geo shapes carry a rich-text label (double-click to edit). It reflects the
+     font / horizontal + vertical align / size style props — the same RichTextLabel
+     the note and text shapes use. -->
+<RichTextLabel
+	shapeId={shape.id}
+	type="geo"
+	richText={shape.props.richText}
+	fontFamily={dv.labelFontFamily}
+	fontSize={dv.labelFontSize}
+	lineHeight={dv.labelLineHeight}
+	textAlign={dv.labelHorizontalAlign}
+	verticalAlign={dv.labelVerticalAlign}
+	labelColor={dv.labelColor}
+	padding={dv.labelPadding}
+	wrap
+/>
 
 <style>
 	.tl-geo {

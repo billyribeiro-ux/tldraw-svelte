@@ -117,7 +117,7 @@
 >
 	<div class="tl-html-layer" {@attach positionLayer}>
 		{#each renderingShapes.current as r (r.id)}
-			<Shape id={r.id} shape={r.shape} index={r.index} />
+			<Shape id={r.id} shape={r.shape} index={r.index} opacity={r.opacity} />
 		{/each}
 		<SelectionOverlay />
 		<ScribbleOverlay />
