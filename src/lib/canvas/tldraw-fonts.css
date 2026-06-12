@@ -126,26 +126,35 @@
    getBoundingClientRect().width to size text shapes (and shape labels). Without
    this CSS that div is a block element that fills the full container width, so
    auto-size TEXT shapes measure as the whole viewport and grow infinitely to the
-   right. These rules mirror tldraw's .tl-text-measure: position it out of flow,
-   hide it, and crucially size it to its content (width: fit-content). */
+   right. Verbatim port of tldraw's editor.css .tl-text-measure: position it out of
+   flow, hide it, and crucially size it to its content (width: max-content, no
+   border — getTextSize's +1 is the only width padding). */
 .tl-text {
 	white-space: pre-wrap;
 	overflow-wrap: break-word;
+	word-wrap: break-word;
 	font-variant-ligatures: none;
+	unicode-bidi: plaintext;
 }
 .tl-text-measure {
 	position: absolute;
 	top: 0;
 	left: 0;
-	width: fit-content;
+	width: max-content;
 	box-sizing: border-box;
-	border: 1px solid transparent;
+	border: none;
 	padding: 0;
 	margin: 0;
+	opacity: 0;
 	visibility: hidden;
 	pointer-events: none;
+	resize: none;
+	white-space: pre-wrap;
+	word-wrap: break-word;
+	overflow-wrap: break-word;
+	unicode-bidi: plaintext;
 	user-select: none;
 	-webkit-user-select: none;
-	contain: layout style;
+	contain: layout style paint;
 	z-index: -1;
 }
