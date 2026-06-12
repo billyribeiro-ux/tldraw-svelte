@@ -390,3 +390,28 @@ test.describe('grid, snap & frame rename', () => {
 			.toBe('My Frame');
 	});
 });
+
+// ---------------------------------------------------------------------------
+// POPOVER VIEWPORT-FIT — the top-right style panel's "Shape" dropdown sits near
+// the screen bottom; opening it must not run off-screen (it flips up / clamps).
+// ---------------------------------------------------------------------------
+test.describe('popover stays on screen', () => {
+	test('the "Shape" dropdown opens fully within the viewport', async ({ page }) => {
+		const vp = page.viewportSize()!;
+		await drawRect(page, 80, 80, 220, 180);
+		await page.getByTestId('style.geo').click();
+		const menu = page.locator('.tlui-style-dropdown__menu');
+		await expect(menu).toBeVisible();
+		const r = await menu.evaluate((el) => {
+			const b = el.getBoundingClientRect();
+			return { top: b.top, left: b.left, right: b.right, bottom: b.bottom };
+		});
+		// Fully on screen (small tolerance).
+		expect(r.top).toBeGreaterThanOrEqual(-1);
+		expect(r.left).toBeGreaterThanOrEqual(-1);
+		expect(r.right).toBeLessThanOrEqual(vp.width + 1);
+		expect(r.bottom).toBeLessThanOrEqual(vp.height + 1);
+		// And the options are reachable.
+		await expect(page.getByRole('menuitemcheckbox', { name: /ellipse/i })).toBeVisible();
+	});
+});
