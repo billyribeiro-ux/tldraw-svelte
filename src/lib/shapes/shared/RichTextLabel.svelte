@@ -46,6 +46,24 @@
 	const html = $derived(richText ? renderHtmlFromRichText(editor, richText) : '');
 	const empty = $derived(!richText || isEmptyRichText(richText));
 
+	// Map tldraw's align values to flexbox so the label actually positions itself.
+	// Horizontal → align-items (cross axis of the column), vertical → justify-content
+	// (main axis). text-align (set below) still handles per-line alignment of wrapped
+	// text. Previously verticalAlign was written to an unused CSS var, so vertical
+	// alignment never took effect.
+	const FLEX: Record<string, string> = {
+		start: 'flex-start',
+		left: 'flex-start',
+		top: 'flex-start',
+		middle: 'center',
+		center: 'center',
+		end: 'flex-end',
+		right: 'flex-end',
+		bottom: 'flex-end'
+	};
+	const alignItems = $derived(FLEX[textAlign] ?? 'center');
+	const justifyContent = $derived(FLEX[verticalAlign] ?? 'center');
+
 	function commit(e: Event) {
 		const el = e.currentTarget as HTMLElement;
 		const next = richTextFromHtml(el.innerHTML);
@@ -85,7 +103,8 @@
 		style:font-size="{fontSize}px"
 		style:line-height={lineHeight}
 		style:text-align={textAlign}
-		style:--tl-vertical-align={verticalAlign}
+		style:align-items={alignItems}
+		style:justify-content={justifyContent}
 		style:color={labelColor}
 		style:padding="{padding}px"
 	>
@@ -115,8 +134,8 @@
 		inset: 0;
 		display: flex;
 		flex-direction: column;
-		justify-content: center;
-		align-items: center;
+		/* justify-content (vertical) + align-items (horizontal) are set inline from
+		   the shape's align props; they default to center via the inline fallback. */
 		overflow: hidden;
 		pointer-events: none;
 	}
