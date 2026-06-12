@@ -15,6 +15,8 @@
 	import SelectionOverlay from './SelectionOverlay.svelte';
 	import ScribbleOverlay from './ScribbleOverlay.svelte';
 	import BrushOverlay from './BrushOverlay.svelte';
+	import GridOverlay from './GridOverlay.svelte';
+	import SnapOverlay from './SnapOverlay.svelte';
 
 	const editor = getEditor();
 
@@ -116,11 +118,13 @@
 	{onpointerup}
 	{onwheel}
 >
+	<GridOverlay />
 	<div class="tl-html-layer" {@attach positionLayer}>
 		{#each renderingShapes.current as r (r.id)}
 			<Shape id={r.id} shape={r.shape} index={r.index} opacity={r.opacity} />
 		{/each}
 		<BrushOverlay />
+		<SnapOverlay />
 		<SelectionOverlay />
 		<ScribbleOverlay />
 	</div>

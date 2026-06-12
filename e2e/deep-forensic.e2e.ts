@@ -325,3 +325,68 @@ test.describe('persistence', () => {
 		await expect.poll(() => count(page)).toBe(1);
 	});
 });
+
+// ---------------------------------------------------------------------------
+// GRID / SNAP / FRAME-RENAME — newly wired-up overlays + editing.
+// ---------------------------------------------------------------------------
+test.describe('grid, snap & frame rename', () => {
+	test('grid renders when grid mode is on', async ({ page }) => {
+		expect(await page.locator('.tl-grid').count()).toBe(0);
+		await page.evaluate(() => window.editor.updateInstanceState({ isGridMode: true }));
+		await expect(page.locator('.tl-grid')).toHaveCount(1);
+	});
+
+	test('snap indicators render while dragging an aligned shape (snap mode)', async ({ page }) => {
+		await page.evaluate(() => {
+			window.editor.user.updateUserPreferences({ isSnapMode: true });
+			window.editor.createShape({
+				id: 'shape:ref' as never,
+				type: 'geo',
+				x: 500,
+				y: 200,
+				props: { geo: 'rectangle', w: 120, h: 120 }
+			});
+			window.editor.createShape({
+				id: 'shape:mov' as never,
+				type: 'geo',
+				x: 500,
+				y: 450,
+				props: { geo: 'rectangle', w: 120, h: 120 }
+			});
+			window.editor.setSelectedShapes(['shape:mov' as never]);
+		});
+		const b = await canvasBox(page);
+		await page.mouse.move(b.x + 560, b.y + 510);
+		await page.mouse.down();
+		await page.mouse.move(b.x + 566, b.y + 470, { steps: 12 });
+		await page.mouse.move(b.x + 560, b.y + 462, { steps: 8 });
+		await expect
+			.poll(() => page.locator('.tl-snaps line, .tl-snaps polyline').count())
+			.toBeGreaterThan(0);
+		await page.mouse.up();
+	});
+
+	test('double-click a frame heading renames the frame', async ({ page }) => {
+		await page.evaluate(() => {
+			window.editor.createShape({
+				id: 'shape:fr' as never,
+				type: 'frame',
+				x: 200,
+				y: 200,
+				props: { w: 300, h: 200 }
+			});
+		});
+		await page.locator('[data-shape-id="shape:fr"] .tl-frame__heading').dblclick();
+		const input = page.locator('[data-shape-id="shape:fr"] input.tl-frame__heading--input');
+		await expect(input).toBeVisible();
+		await input.fill('My Frame');
+		await page.keyboard.press('Enter');
+		await expect
+			.poll(() =>
+				page.evaluate(
+					() => (window.editor.getShape('shape:fr' as never)?.props as { name: string }).name
+				)
+			)
+			.toBe('My Frame');
+	});
+});
