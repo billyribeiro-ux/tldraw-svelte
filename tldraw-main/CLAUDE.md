@@ -1,13 +1,17 @@
 # tldraw-main — READ-ONLY REFERENCE, NOT ACTIVE CODE
 
 This folder is the upstream **tldraw** React monorepo, vendored into this
-repo **for analysis and porting only**. It is NOT part of this project's
-build, test, lint, or runtime. Do not build it, run it, install its
-dependencies, or edit its files.
+repo **for analysis and porting only**. It exists so agents can read and
+grep tldraw's source when converting its behavior into the SvelteKit
+project under `../src` and `../packages`.
 
-Agents: use this tree as a **read reference** when converting tldraw
-behavior into the Svelte port under `../src` and `../packages`. Read and
-grep freely; do not modify.
+It is NOT part of this project's build, test, lint, or runtime:
+
+- All config files have been **deleted** (no `package.json`, `tsconfig`,
+  `vite`/`vitest`/`playwright`/`eslint` configs, lockfiles, `wrangler.toml`,
+  Dockerfiles, etc.). This tree **cannot be installed, built, or run** —
+  by design. Do not try.
+- Do not edit, build, run, or restore configs for these files. Read only.
 
 The upstream agent guide is preserved at [`AGENTS.md`](./AGENTS.md) for
 reference, but its instructions (yarn workspaces, `yarn dev`, `yarn build`,
