@@ -37,10 +37,11 @@
 </div>
 
 <style>
-	/* tldraw's color grid: 4 columns of 40px buttons (the panel hugs this width). */
+	/* tldraw's color grid: 4 equal columns that fit the 148px panel (1fr, not fixed
+	   40px which would overflow). Buttons stay square via aspect-ratio. */
 	.tlui-color-grid {
 		display: grid;
-		grid-template-columns: repeat(4, 40px);
+		grid-template-columns: repeat(4, 1fr);
 		grid-auto-flow: row;
 		overflow: hidden;
 		padding: 2px;
@@ -50,8 +51,9 @@
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;
-		width: 40px;
-		height: 40px;
+		width: 100%;
+		min-width: 0;
+		aspect-ratio: 1;
 		padding: 0;
 		border: none;
 		background: transparent;

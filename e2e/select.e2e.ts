@@ -84,3 +84,65 @@ test('the real SelectTool moves a geo shape on drag', async ({ page }) => {
 	expect(after.y).toBeGreaterThan(before.y + 40);
 	expect(await page.evaluate(() => window.editor.getSelectedShapeIds())).toContain(id);
 });
+
+test('dragging a resize handle resizes the shape smaller AND bigger', async ({ page }) => {
+	// Regression: resize was broken (Canvas called a non-existent startResizing
+	// method); now it dispatches tldraw's real target:'selection'+handle event so
+	// Idle → pointing_resize_handle → resizing engages.
+	await page.evaluate(() => {
+		const e = window.editor;
+		e.selectAll();
+		e.deleteShapes(e.getSelectedShapeIds());
+		e.createShape({
+			id: 'shape:rsz' as never,
+			type: 'geo',
+			x: 300,
+			y: 300,
+			props: { geo: 'rectangle', w: 200, h: 160 }
+		});
+		e.setCurrentTool('select');
+		e.setSelectedShapes(['shape:rsz' as never]);
+		e.zoomToFit();
+	});
+	await page.waitForTimeout(200);
+
+	const cornerScreen = () =>
+		page.evaluate(() => {
+			const e = window.editor;
+			const b = e.getShapePageBounds('shape:rsz' as never)!;
+			const br = e.pageToScreen({ x: b.maxX, y: b.maxY });
+			const tl = e.pageToScreen({ x: b.minX, y: b.minY });
+			return {
+				brX: Math.round(br.x),
+				brY: Math.round(br.y),
+				tlX: Math.round(tl.x),
+				tlY: Math.round(tl.y),
+				w: Math.round(b.width),
+				h: Math.round(b.height)
+			};
+		});
+
+	// Smaller: drag the bottom-right handle inward.
+	let c = await cornerScreen();
+	const startW = c.w;
+	const tx = c.tlX + Math.round((c.brX - c.tlX) * 0.4);
+	const ty = c.tlY + Math.round((c.brY - c.tlY) * 0.4);
+	await page.mouse.move(c.brX, c.brY);
+	await page.mouse.down();
+	await page.mouse.move((c.brX + tx) / 2, (c.brY + ty) / 2, { steps: 6 });
+	await page.mouse.move(tx, ty, { steps: 6 });
+	await page.mouse.up();
+	await page.waitForTimeout(150);
+	c = await cornerScreen();
+	expect(c.w).toBeLessThan(startW);
+
+	// Bigger: drag the (new) bottom-right handle outward.
+	const smallW = c.w;
+	await page.mouse.move(c.brX, c.brY);
+	await page.mouse.down();
+	await page.mouse.move(c.brX + 120, c.brY + 100, { steps: 8 });
+	await page.mouse.up();
+	await page.waitForTimeout(150);
+	c = await cornerScreen();
+	expect(c.w).toBeGreaterThan(smallW);
+});

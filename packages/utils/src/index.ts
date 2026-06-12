@@ -1,6 +1,11 @@
 import { registerTldrawLibraryVersion } from './lib/version'
 
-export { default as isEqual } from 'lodash.isequal'
+// `lodash.isequal` is deprecated; `isEqual(a, b)` is exactly `isEqualWith(a, b)`
+// with no customizer, so we back it with the (non-deprecated) lodash.isequalwith.
+import isEqualWithImpl from 'lodash.isequalwith'
+export function isEqual(a: unknown, b: unknown): boolean {
+	return isEqualWithImpl(a, b)
+}
 export { default as isEqualWith } from 'lodash.isequalwith'
 export { default as throttle } from 'lodash.throttle'
 export { default as uniq } from 'lodash.uniq'

@@ -20,12 +20,13 @@
 {/if}
 
 <style>
-	/* The panel hugs its content (the 40px button rows / 4-col color grid), like
-	   tldraw — a fixed narrow width would squeeze the rows. */
+	/* tldraw's style panel is a fixed 148px (max-width 148px). Content fits within
+	   it via 1fr grid columns — NOT fixed 40px buttons (which over-widen it). */
 	.tlui-style-panel {
 		display: flex;
 		flex-direction: column;
-		width: max-content;
+		width: 148px;
+		max-width: 148px;
 		max-height: calc(100vh - 120px);
 		overflow-y: auto;
 		background: var(--tl-color-panel, #fff);

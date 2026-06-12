@@ -5,7 +5,8 @@
 		modulate,
 		normalizeWheel,
 		isAccelKey,
-		Vec
+		Vec,
+		type TLSelectionHandle
 	} from '@tldraw/editor';
 	import { getEditor } from '$lib/state-svelte';
 	import { fromComputed } from '$lib/state-svelte/use-value.svelte';
@@ -37,42 +38,30 @@
 		if (e.button !== 0 && e.button !== 1 && e.button !== 2 && e.button !== 5) return;
 		(e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
 
-		// If a resize handle was pressed, route directly to the select tool's
-		// resize state (the engine has no DOM handles; the Svelte overlay owns them).
+		// If a resize handle was pressed, dispatch a pointer_down with the REAL
+		// `target: 'selection'` + `handle` info — exactly the event tldraw's
+		// SelectTool.Idle expects. It then transitions Idle → pointing_resize_handle →
+		// (on drag) resizing, using the genuine engine state machine. (The Svelte
+		// overlay owns the DOM handles since the engine renders no DOM; we just feed
+		// the right event in.) `data-handle` ids match tldraw's corner names.
 		const handleEl = (e.target as HTMLElement)?.closest?.('[data-handle]') as HTMLElement | null;
-		if (handleEl) {
-			// root.getCurrent() = active tool (select); its getCurrent() = idle child.
-			const idle = editor.root.getCurrent()?.getCurrent();
-			const corner = handleEl.dataset.handle;
-			const shapeId = handleEl.dataset.handleFor;
-			if (
-				idle &&
-				'startResizing' in idle &&
-				typeof (idle as { startResizing?: unknown }).startResizing === 'function' &&
-				corner &&
-				shapeId
-			) {
-				// First send pointer_down so inputs (origin point) are initialised.
-				editor.dispatch({
-					type: 'pointer',
-					target: 'canvas',
-					name: 'pointer_down',
-					...getPointerInfo(editor, e)
-				});
-				(idle as { startResizing: (id: string, corner: string) => void }).startResizing(
-					shapeId,
-					corner
-				);
-				return;
-			}
+		const handle = handleEl?.dataset.handle as TLSelectionHandle | undefined;
+		if (handle) {
+			editor.dispatch({
+				type: 'pointer',
+				target: 'selection',
+				handle,
+				name: 'pointer_down',
+				...getPointerInfo(editor, e)
+			});
+		} else {
+			editor.dispatch({
+				type: 'pointer',
+				target: 'canvas',
+				name: 'pointer_down',
+				...getPointerInfo(editor, e)
+			});
 		}
-
-		editor.dispatch({
-			type: 'pointer',
-			target: 'canvas',
-			name: 'pointer_down',
-			...getPointerInfo(editor, e)
-		});
 	}
 
 	function onpointermove(e: PointerEvent) {
