@@ -175,3 +175,37 @@ test('FORENSIC D: direct default(m) -> small thins the selected stroke (no xl bu
 
 	expect(hS).toBeLessThan(hM);
 });
+
+// The opacity slider sets the shape's `opacity` field; the rendered shape
+// container must actually become transparent (regression: opacity was written to
+// the record but never applied to the DOM, so the drawing never changed).
+function shapeContainerOpacity(page: import('@playwright/test').Page) {
+	return page
+		.locator('.tl-shape[data-shape-type="draw"]')
+		.first()
+		.evaluate((el) => getComputedStyle(el).opacity);
+}
+
+test('FORENSIC E: the opacity slider actually changes the drawing opacity in the DOM', async ({
+	page
+}) => {
+	const { id, box, y } = await drawStroke(page);
+	await page.keyboard.press('v');
+	await page.mouse.click(box.x + 150 + 96, box.y + y);
+	await expect.poll(() => page.evaluate(() => window.editor.getSelectedShapeIds())).toContain(id);
+
+	// Fully opaque to start.
+	expect(Number(await shapeContainerOpacity(page))).toBeCloseTo(1, 2);
+
+	// Drag the opacity slider to a low value.
+	const slider = page.getByTestId('style.opacity').getByRole('slider');
+	await slider.fill('0.3');
+
+	// HARD EVIDENCE 1: the record changed.
+	await expect
+		.poll(() => page.evaluate((sid) => window.editor.getShape(sid as never)?.opacity, id))
+		.toBeCloseTo(0.3, 2);
+
+	// HARD EVIDENCE 2: the rendered container is actually translucent now.
+	await expect.poll(async () => Number(await shapeContainerOpacity(page))).toBeCloseTo(0.3, 2);
+});
