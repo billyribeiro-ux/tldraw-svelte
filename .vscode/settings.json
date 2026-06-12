@@ -1,5 +1,12 @@
 {
 	"files.associations": {
 		"*.css": "tailwindcss"
+	},
+	"//": "tldraw-main/ is a read-only conversion reference. Keep it openable, but exclude it from search and file-watching so it doesn't pollute results or indexing.",
+	"search.exclude": {
+		"**/tldraw-main": true
+	},
+	"files.watcherExclude": {
+		"**/tldraw-main/**": true
 	}
 }

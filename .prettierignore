@@ -8,3 +8,6 @@ bun.lockb
 # Miscellaneous
 /static/
 /drizzle/
+
+# Upstream tldraw React monorepo — read-only conversion reference, never formatted
+/tldraw-main/

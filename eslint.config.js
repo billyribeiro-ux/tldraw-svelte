@@ -20,7 +20,10 @@ export default defineConfig(
 		// is covered by `svelte-check` (type-checks the whole tree, 0/0) and `pnpm
 		// build`. Linting it here would be meaningless noise and churn re-syncs with
 		// upstream. App code under src/ and e2e/ is still fully linted.
-		ignores: ['packages/**']
+		// `tldraw-main/` is the upstream tldraw React monorepo, vendored as a
+		// read-only conversion reference (configs stripped, never built/run).
+		// Never lint it.
+		ignores: ['packages/**', 'tldraw-main/**']
 	},
 	js.configs.recommended,
 	ts.configs.recommended,
