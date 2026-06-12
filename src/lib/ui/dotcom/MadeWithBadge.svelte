@@ -1,16 +1,9 @@
 <script lang="ts">
-	// Cosmetic "Made with tldraw" badge (bottom-right), matching tldraw.com. Links to
-	// tldraw.dev. Visual-only dotcom chrome.
+	// Cosmetic "Made with tldraw" badge (bottom-right). Visual-only — does NOT link
+	// out anywhere.
 </script>
 
-<a
-	class="tlui-made-with"
-	href="https://tldraw.dev"
-	target="_blank"
-	rel="noopener noreferrer"
-	data-testid="made-with-tldraw"
-	aria-label="Made with tldraw"
->
+<div class="tlui-made-with" data-testid="made-with-tldraw" aria-label="Made with tldraw" role="img">
 	<span class="tlui-made-with__pre">MADE WITH</span>
 	<span class="tlui-made-with__mark" aria-hidden="true">
 		<svg viewBox="0 0 20 20" width="12" height="12" fill="none">
@@ -24,7 +17,7 @@
 		</svg>
 	</span>
 	<span class="tlui-made-with__word">TLDRAW</span>
-</a>
+</div>
 
 <style>
 	.tlui-made-with {
@@ -33,7 +26,7 @@
 		gap: 6px;
 		height: 32px;
 		padding: 0 10px;
-		text-decoration: none;
+		user-select: none;
 		color: var(--tl-color-text, #1d1d1d);
 		background: var(--tl-color-panel, #fff);
 		border-radius: var(--tl-radius-2, 6px);

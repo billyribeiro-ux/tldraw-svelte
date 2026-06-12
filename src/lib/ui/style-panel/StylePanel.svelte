@@ -4,15 +4,16 @@
 	import StylePanelContent from './StylePanelContent.svelte';
 
 	// From-scratch desktop StylePanel (port of tldraw's StylePanel): the panel chrome
-	// (panel background, 148px width, shadow) wrapping the shared StylePanelContent.
-	// Shown whenever the selection exposes any shared styles.
+	// wrapping the shared StylePanelContent. Shown whenever tldraw would show it —
+	// including while a drawing tool is active with nothing selected, so you can set
+	// styles (color, line thickness, etc.) BEFORE drawing.
 	const editor = getEditor();
 	const model = new StylePanelModel(editor);
 
-	const styles = $derived(model.styles.current);
+	const visible = $derived(model.isVisible.current);
 </script>
 
-{#if styles.size > 0}
+{#if visible}
 	<div class="tlui-style-panel" data-testid="style-panel">
 		<StylePanelContent {model} />
 	</div>

@@ -1,16 +1,9 @@
 <script lang="ts">
-	// Top-left brand logo, in the slot where tldraw.com shows its logo. A rounded
-	// dark badge with a clean geometric pencil/draw mark + the wordmark. Pure SVG,
-	// theme-token coloured, links out like the original.
+	// Top-left brand logo. A rounded badge with a clean geometric pencil/draw mark +
+	// the wordmark. Pure SVG, theme-token coloured. Does NOT link out anywhere.
 </script>
 
-<a
-	class="tlui-logo"
-	href="https://tldraw.dev"
-	target="_blank"
-	rel="noopener noreferrer"
-	aria-label="tldraw"
->
+<div class="tlui-logo" aria-label="tldraw" role="img">
 	<span class="tlui-logo__mark" aria-hidden="true">
 		<svg viewBox="0 0 32 32" width="20" height="20" role="img">
 			<defs>
@@ -34,7 +27,7 @@
 		</svg>
 	</span>
 	<span class="tlui-logo__word">tldraw</span>
-</a>
+</div>
 
 <style>
 	.tlui-logo {
@@ -43,15 +36,11 @@
 		gap: 9px;
 		height: 40px;
 		padding: 0 10px 0 6px;
-		text-decoration: none;
 		color: var(--tl-color-text, #1d1d1d);
 		font: 700 16px/1 var(--tl-font-sans, system-ui, sans-serif);
 		letter-spacing: -0.02em;
 		border-radius: var(--tl-radius-3, 9px);
-		transition: background 0.12s ease;
-	}
-	.tlui-logo:hover {
-		background: var(--tl-color-muted-2, rgba(0, 0, 0, 0.043));
+		user-select: none;
 	}
 	.tlui-logo__mark {
 		display: inline-flex;

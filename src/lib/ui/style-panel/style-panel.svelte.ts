@@ -1,6 +1,31 @@
-import type { Editor, StyleProp, SharedStyle, TLDefaultColorStyle } from '@tldraw/editor';
-import { DefaultColorStyle, getColorValue } from '@tldraw/editor';
+import type {
+	Editor,
+	StyleProp,
+	SharedStyle,
+	TLDefaultColorStyle,
+	ReadonlySharedStyleMap
+} from '@tldraw/editor';
+import {
+	DefaultColorStyle,
+	DefaultDashStyle,
+	DefaultFillStyle,
+	DefaultSizeStyle,
+	SharedStyleMap,
+	getColorValue
+} from '@tldraw/editor';
 import { fromComputed } from '$lib/state-svelte/use-value.svelte';
+
+// The style props the SELECT tool seeds from next-shape defaults when nothing is
+// selected — matches tldraw's `selectToolStyles` in useRelevantStyles.ts.
+const SELECT_TOOL_STYLES = [
+	DefaultColorStyle,
+	DefaultDashStyle,
+	DefaultFillStyle,
+	DefaultSizeStyle
+] as const;
+
+/** A shared empty map returned when the panel shouldn't show (stable identity). */
+const EMPTY_STYLES: ReadonlySharedStyleMap = new SharedStyleMap();
 
 /**
  * From-scratch port of tldraw's StylePanelContext. Wraps the editor's real style
@@ -12,8 +37,59 @@ import { fromComputed } from '$lib/state-svelte/use-value.svelte';
 export class StylePanelModel {
 	#editor: Editor;
 
-	/** The shared styles across the current selection (or the next-shape styles). */
-	readonly styles = fromComputed('shared styles', () => this.#editor.getSharedStyles());
+	/**
+	 * The relevant styles to show, a faithful port of tldraw's `useRelevantStyles`:
+	 *  - start from the selection's shared styles;
+	 *  - in the SELECT tool with nothing selected, seed the panel from the NEXT-SHAPE
+	 *    defaults (so you can set color/size/etc. before drawing);
+	 *  - show the panel (return a map, possibly empty for the opacity slider) when a
+	 *    shape-specific tool is active, OR shapes are selected, OR there are styles;
+	 *  - otherwise return null → the panel is hidden.
+	 * This is why the panel appears while a draw/geo/line tool is active — letting you
+	 * set the line thickness BEFORE drawing, exactly like tldraw.
+	 */
+	readonly relevant = fromComputed<ReadonlySharedStyleMap | null>('relevant styles', () => {
+		const editor = this.#editor;
+		const styles = new SharedStyleMap(editor.getSharedStyles());
+		const isInShapeSpecificTool = !!editor.root.getCurrent()?.shapeType;
+		const hasShapesSelected = editor.isIn('select') && editor.getSelectedShapeIds().length > 0;
+
+		if (styles.size === 0 && editor.isIn('select') && editor.getSelectedShapeIds().length === 0) {
+			for (const style of SELECT_TOOL_STYLES) {
+				styles.applyValue(style, editor.getStyleForNextShape(style));
+			}
+		}
+
+		if (isInShapeSpecificTool || hasShapesSelected || styles.size > 0) {
+			return styles;
+		}
+		return null;
+	});
+
+	/**
+	 * The shared styles to render (empty map when the panel shouldn't show). A plain
+	 * getter over the single `relevant` reactive signal — reading `.current` here keeps
+	 * the same reactive subscription rather than nesting a second `fromComputed` (which
+	 * wouldn't re-run when the underlying styles change).
+	 */
+	get styles(): { current: ReadonlySharedStyleMap } {
+		const relevant = this.relevant;
+		return {
+			get current() {
+				return relevant.current ?? EMPTY_STYLES;
+			}
+		};
+	}
+
+	/** Whether the style panel should be shown at all (tldraw parity). */
+	get isVisible(): { current: boolean } {
+		const relevant = this.relevant;
+		return {
+			get current() {
+				return relevant.current !== null;
+			}
+		};
+	}
 	/** Shared opacity across the selection. */
 	readonly opacity = fromComputed('shared opacity', () => this.#editor.getSharedOpacity());
 	/** The resolved theme palette for the current color mode (for swatches). */

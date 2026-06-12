@@ -36,14 +36,19 @@ test.beforeEach(async ({ page }) => {
 	});
 });
 
-test('the style panel appears when a shape is selected and shows the relevant pickers', async ({
+test('the style panel shows next-shape defaults, then the selected shape pickers', async ({
 	page
 }) => {
-	await expect(page.getByTestId('style-panel')).toHaveCount(0);
-	await selectNewGeo(page, 'shape:sp1');
+	// tldraw shows the panel even on the select tool with nothing selected (seeded
+	// from next-shape defaults: color/dash/fill/size), but NOT the geo dropdown.
 	const panel = page.getByTestId('style-panel');
 	await expect(panel).toBeVisible();
-	// A geo shape exposes color, fill, dash, size styles (button pickers) + geo (dropdown).
+	await expect(panel.getByTestId('style.size')).toBeVisible();
+	await expect(panel.getByTestId('style.geo')).toHaveCount(0); // no shape selected yet
+
+	// Selecting a geo shape narrows it to that shape's full style set incl. geo.
+	await selectNewGeo(page, 'shape:sp1');
+	await expect(panel).toBeVisible();
 	await expect(panel.getByTestId('style.color')).toBeVisible();
 	await expect(panel.getByTestId('style.fill')).toBeVisible();
 	await expect(panel.getByTestId('style.dash')).toBeVisible();
@@ -113,4 +118,32 @@ test('style choice is remembered for the next shape (setStyleForNextShapes)', as
 			)
 		)
 		.toBe('red');
+});
+
+test('the style panel shows while a drawing tool is active, so thickness is set before drawing', async ({
+	page
+}) => {
+	// Regression for the "line thickness not working" bug: tldraw shows the style
+	// panel when a shape tool is active (not just on selection), seeded from the
+	// next-shape styles — so you can pick the size BEFORE drawing.
+	await page.evaluate(() => window.editor.setCurrentTool('draw'));
+	const panel = page.getByTestId('style-panel');
+	await expect(panel).toBeVisible();
+	await expect(panel.getByTestId('style.size')).toBeVisible();
+
+	// Pick XL, then draw a stroke — it must come out thick (size = xl).
+	await page.getByTestId('style.size.xl').click();
+	await page.evaluate(() => window.editor.setCurrentTool('draw'));
+	const canvas = page.locator('.tl-canvas');
+	await canvas.hover({ position: { x: 300, y: 300 } });
+	await page.mouse.down();
+	await page.mouse.move(400, 300);
+	await page.mouse.up();
+	await expect
+		.poll(() =>
+			page.evaluate(
+				() => (window.editor.getCurrentPageShapes()[0]?.props as { size?: string })?.size
+			)
+		)
+		.toBe('xl');
 });
