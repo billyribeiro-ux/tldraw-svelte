@@ -32,12 +32,13 @@
 </div>
 
 <style>
-	/* tldraw's .tlui-slider__container — the slider stands alone, no heading text. */
+	/* tldraw's .tlui-slider__container — horizontal padding only (var(--tl-space-4)),
+	   no fixed height; the track defines the height. */
 	.tlui-slider__container {
 		display: flex;
-		height: 32px;
+		height: 44px;
 		align-items: center;
-		padding: 0 8px;
+		padding: 0 var(--tl-space-4, 12px);
 	}
 	.tlui-opacity-slider {
 		width: 100%;
