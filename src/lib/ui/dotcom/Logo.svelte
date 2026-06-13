@@ -3,7 +3,7 @@
 	// the wordmark. Pure SVG, theme-token coloured. Does NOT link out anywhere.
 </script>
 
-<div class="tlui-logo" aria-label="tldraw" role="img">
+<div class="tlui-logo" aria-label="Dev Draw" role="img">
 	<span class="tlui-logo__mark" aria-hidden="true">
 		<svg viewBox="0 0 32 32" width="20" height="20" role="img">
 			<defs>
@@ -26,7 +26,7 @@
 			<circle cx="22" cy="10" r="1.6" fill="#fff" opacity="0.9" />
 		</svg>
 	</span>
-	<span class="tlui-logo__word">tldraw</span>
+	<span class="tlui-logo__word">Dev Draw</span>
 </div>
 
 <style>

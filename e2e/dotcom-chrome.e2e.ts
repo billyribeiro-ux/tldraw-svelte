@@ -18,7 +18,7 @@ test.beforeEach(async ({ page }) => {
 
 test('the dotcom chrome (logo, share, sign-in, made-with badge) is present', async ({ page }) => {
 	await expect(page.locator('.tlui-logo')).toBeVisible();
-	await expect(page.locator('.tlui-logo')).toContainText('tldraw');
+	await expect(page.locator('.tlui-logo')).toContainText('Dev Draw');
 	await expect(page.getByTestId('share-button')).toBeVisible();
 	await expect(page.getByTestId('sign-in-button')).toBeVisible();
 	await expect(page.getByTestId('sign-in-button')).toContainText('Sign in to share');

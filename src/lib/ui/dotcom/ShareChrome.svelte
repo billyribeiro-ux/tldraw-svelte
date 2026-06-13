@@ -11,7 +11,7 @@
 	function notImplemented(what: string) {
 		toasts.add({
 			title: what,
-			description: 'Sharing requires a tldraw.com account — not available in this build.',
+			description: 'Sharing requires a Dev Draw account — not available in this build.',
 			severity: 'info'
 		});
 	}

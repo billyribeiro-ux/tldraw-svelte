@@ -14,7 +14,7 @@
 </script>
 
 <svelte:head>
-	<title>tldraw-svelte</title>
+	<title>Dev Draw</title>
 </svelte:head>
 
 <div class="app">

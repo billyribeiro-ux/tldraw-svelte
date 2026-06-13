@@ -106,7 +106,10 @@
 	.tlui-style-icon-btn--active {
 		color: var(--tl-color-selected-contrast, #fff);
 	}
-	.tlui-style-icon-btn--active::after {
+	/* The selected state must win on hover too (a bare :hover::after has higher
+	   specificity than --active::after, which is what made the blue vanish on hover). */
+	.tlui-style-icon-btn--active::after,
+	.tlui-style-icon-btn--active:hover::after {
 		background: var(--tl-color-selected, #4465e9);
 	}
 </style>
