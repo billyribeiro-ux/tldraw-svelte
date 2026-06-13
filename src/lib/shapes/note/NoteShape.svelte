@@ -1,6 +1,11 @@
 <script lang="ts">
 	import type { TLNoteShape } from '@tldraw/tlschema';
-	import { getDisplayValues, getNoteHeight, getNoteShadow, type NoteShapeUtil } from '@tldraw/tldraw';
+	import {
+		getDisplayValues,
+		getNoteHeight,
+		getNoteShadow,
+		type NoteShapeUtil
+	} from '@tldraw/tldraw';
 	import { getEditor } from '$lib/state-svelte';
 	import { fromComputed } from '$lib/state-svelte/use-value.svelte';
 	import RichTextLabel from '../shared/RichTextLabel.svelte';

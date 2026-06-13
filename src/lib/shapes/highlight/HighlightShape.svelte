@@ -31,7 +31,11 @@
 	const d = $derived.by(() => {
 		const { strokePoints } = getHighlightStrokePoints(shape, sw, forceSolid);
 		if (strokePoints.length > 1) return getSvgPathFromStrokePoints(strokePoints, false);
-		const pts = getPointsFromDrawSegments(shape.props.segments, shape.props.scaleX, shape.props.scaleY);
+		const pts = getPointsFromDrawSegments(
+			shape.props.segments,
+			shape.props.scaleX,
+			shape.props.scaleY
+		);
 		return getShapeDot(pts[0]);
 	});
 </script>

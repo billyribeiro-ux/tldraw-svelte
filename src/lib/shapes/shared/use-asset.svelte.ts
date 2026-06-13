@@ -94,7 +94,8 @@ export class AssetResolver {
 		}
 
 		const assetWidth = (asset.props as { w?: number }).w ?? this.#getWidth();
-		const screenScale = editor.getEfficientZoomLevel() * (this.#getWidth() / Math.max(assetWidth, 1));
+		const screenScale =
+			editor.getEfficientZoomLevel() * (this.#getWidth() / Math.max(assetWidth, 1));
 
 		// Resolve immediately on first/assetId-change, debounce on zoom changes.
 		const run = () => {

@@ -70,9 +70,7 @@
 	const strokePoints = $derived(getStrokePoints(allPoints, options));
 	const isDot = $derived(strokePoints.length < 2);
 	const solidStrokePath = $derived(
-		isDot
-			? getDot(allPoints[0], 0)
-			: getSvgPathFromStrokePoints(strokePoints, shape.props.isClosed)
+		isDot ? getDot(allPoints[0], 0) : getSvgPathFromStrokePoints(strokePoints, shape.props.isClosed)
 	);
 	const solidFill = $derived(isDot || shape.props.isClosed ? shape.props.fill : 'none');
 	const dashArray = $derived(

@@ -126,8 +126,16 @@
 		background: var(--tl-color-selected, hsl(214, 84%, 56%));
 		opacity: 1;
 	}
+	/* Menu rows: full-width left-aligned with an 8px icon/label gap. The -4px
+	   margin-top collapses the 4px inset gap between stacked rows (tldraw
+	   ui.css:187-210); the first row resets it so the group's top edge is flush. */
 	.tlui-button--menu {
 		justify-content: flex-start;
 		width: 100%;
+		gap: 8px;
+		margin-top: -4px;
+	}
+	.tlui-button--menu:first-child {
+		margin-top: 0;
 	}
 </style>

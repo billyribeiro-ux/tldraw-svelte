@@ -9,6 +9,7 @@
 		isEmptyRichText,
 		type ArrowShapeUtil
 	} from '@tldraw/tldraw';
+	import { getPerfectDashProps } from '@tldraw/editor';
 	import { getEditor } from '$lib/state-svelte';
 	import { fromComputed } from '$lib/state-svelte/use-value.svelte';
 	import RichTextLabel from '../shared/RichTextLabel.svelte';
@@ -35,6 +36,10 @@
 		}
 	);
 	const sw = $derived(dv.strokeWidth * shape.props.scale);
+	// The label box already bakes in labelPadding*2*scale of padding (see
+	// getArrowLabelPosition). Inset the background by labelPadding*scale per side
+	// so it hugs the text bounds rather than the oversized full box.
+	const labelPad = $derived(dv.labelPadding * shape.props.scale);
 
 	const info = $derived(getArrowInfo(editor, shape));
 
@@ -49,21 +54,40 @@
 			return null;
 		}
 	});
-	const showLabel = $derived(
-		!!labelBox && (isEditing || !isEmptyRichText(shape.props.richText))
-	);
+	const showLabel = $derived(!!labelBox && (isEditing || !isEmptyRichText(shape.props.richText)));
 
-	const bodyD = $derived.by(() => {
-		if (!info || !info.isValid) return '';
+	// Body path data + (for dashed/dotted) the stroke-dasharray/dashoffset that
+	// reproduce tldraw's PathBuilder.toDashedSvg() for the arrow body. The arrow
+	// body is a single open run, so we dash the whole path over its geometry
+	// length with start/end terminals of 'none' (matching the open-path defaults
+	// in toDashedSvg), mirroring GeoShape.svelte's approach.
+	const body = $derived.by((): { d: string; dasharray?: string; dashoffset?: string } => {
+		if (!info || !info.isValid) return { d: '' };
 		const builder = getArrowBodyPathBuilder(info);
 		const dash = shape.props.dash;
-		return dash === 'draw'
-			? builder.toDrawD({ strokeWidth: sw, randomSeed: shape.id, passes: 1, offset: 0 })
-			: builder.toD();
+		if (dash === 'draw') {
+			return {
+				d: builder.toDrawD({ strokeWidth: sw, randomSeed: shape.id, passes: 1, offset: 0 })
+			};
+		}
+		if (dash === 'dashed' || dash === 'dotted') {
+			const length = builder.toGeometry().length || 1;
+			const { strokeDasharray, strokeDashoffset } = getPerfectDashProps(length, sw, {
+				style: dash,
+				start: 'none',
+				end: 'none'
+			});
+			return { d: builder.toD(), dasharray: strokeDasharray, dashoffset: strokeDashoffset };
+		}
+		return { d: builder.toD() };
 	});
 
-	const startHead = $derived(info && info.isValid ? getArrowheadPathForType(info, 'start', sw) : undefined);
-	const endHead = $derived(info && info.isValid ? getArrowheadPathForType(info, 'end', sw) : undefined);
+	const startHead = $derived(
+		info && info.isValid ? getArrowheadPathForType(info, 'start', sw) : undefined
+	);
+	const endHead = $derived(
+		info && info.isValid ? getArrowheadPathForType(info, 'end', sw) : undefined
+	);
 	const fillsHead = $derived(shape.props.fill !== 'none');
 </script>
 
@@ -75,8 +99,8 @@
 		stroke-linejoin="round"
 		stroke-linecap="round"
 	>
-		{#if bodyD}
-			<path d={bodyD} />
+		{#if body.d}
+			<path d={body.d} stroke-dasharray={body.dasharray} stroke-dashoffset={body.dashoffset} />
 		{/if}
 		{#if startHead}
 			{#if fillsHead}
@@ -100,8 +124,17 @@
 		style:top="{labelBox.y}px"
 		style:width="{labelBox.w}px"
 		style:height="{labelBox.h}px"
-		style:border-radius="{dv.labelBorderRadius}px"
 	>
+		<!-- Canvas-colored background so the label reads over the arrow body, exactly
+		     like tldraw's ArrowSvg label clip. The label box already includes
+		     labelPadding*2*scale of padding (see getArrowLabelPosition), so the
+		     background is inset by labelPadding*scale per side to the text bounds
+		     and rounded with labelBorderRadius. -->
+		<div
+			class="tl-arrow-label__bg"
+			style:inset="{labelPad}px"
+			style:border-radius="{dv.labelBorderRadius * shape.props.scale}px"
+		></div>
 		<RichTextLabel
 			shapeId={shape.id}
 			type="arrow"
@@ -112,7 +145,7 @@
 			textAlign="center"
 			verticalAlign="middle"
 			labelColor={dv.labelColor}
-			padding={dv.labelPadding}
+			padding={0}
 		/>
 	</div>
 {/if}
@@ -124,9 +157,14 @@
 		overflow: visible;
 		pointer-events: none;
 	}
-	/* Label background matches the canvas so it reads over the arrow body, exactly
-	   like tldraw's ArrowSvg label rect. */
 	.tl-arrow-label {
+		position: absolute;
+		pointer-events: none;
+	}
+	/* Inset, rounded background that matches the canvas so the label reads over the
+	   arrow body, exactly like tldraw's ArrowSvg label rect (which is the label box
+	   minus its padding). */
+	.tl-arrow-label__bg {
 		position: absolute;
 		background: var(--tl-canvas-bg, #fff);
 		pointer-events: none;
