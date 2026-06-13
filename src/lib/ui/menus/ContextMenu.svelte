@@ -15,12 +15,21 @@
 	const hasSelection = $derived(selectedCount.current > 0);
 	const canGroup = $derived(selectedCount.current > 1);
 
+	// tldraw only shows the context menu while the select tool is active
+	// (DefaultContextMenuContent returns null otherwise).
+	const isSelectTool = fromComputed(
+		'is select tool active',
+		() => editor.getCurrentToolId() === 'select'
+	);
+
 	let open = $state(false);
 	let x = $state(0);
 	let y = $state(0);
 
 	function oncontextmenu(e: MouseEvent) {
 		// Only hijack right-clicks that land on the canvas surface, not on UI chrome.
+		// tldraw gates the context menu on the select tool being active.
+		if (!isSelectTool.current) return;
 		const target = e.target as HTMLElement;
 		if (target.closest('.tlui-layout')) return; // a UI element handled it
 		if (!target.closest('.tl-container, .tl-canvas')) return;
@@ -88,10 +97,6 @@
 		{:else}
 			<MenuGroup>
 				<ActionMenuItem actionId="select-all" source="context-menu" />
-			</MenuGroup>
-			<MenuGroup>
-				<ActionMenuItem actionId="zoom-to-fit" source="context-menu" />
-				<ActionMenuItem actionId="reset-zoom" source="context-menu" />
 			</MenuGroup>
 		{/if}
 	</div>

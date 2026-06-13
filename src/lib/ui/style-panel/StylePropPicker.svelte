@@ -60,19 +60,21 @@
 </div>
 
 <style>
-	/* Row layout (<=4 items) — tldraw's TldrawUiRow (.tlui-row: `padding: 0 2px`).
-	   The 148px panel holds 4 items; they flex-fill the row (≈40px each) so the 4th
-	   never clips the panel edge (fixed 40px×4 = 160 > 148 would overflow). */
+	/* Row layout (<=4 items) — tldraw's TldrawUiRow, verbatim from ui.css:288-296:
+	   `.tlui-row { display:flex; flex-direction:row; padding: 0 2px }` and each child
+	   `margin-left/right: -2px`. With fixed-40px items the four collapse to exactly
+	   4×40 − 4×4 + 4(padding) = 148px (the panel width), no clip, no flex stretch. */
 	.tlui-style-row {
 		display: flex;
 		flex-direction: row;
-		gap: 0;
 		padding: 0 2px;
 	}
-	.tlui-style-row .tlui-style-icon-btn {
-		flex: 1 1 0;
+	.tlui-style-row > .tlui-style-icon-btn {
+		margin-left: -2px;
+		margin-right: -2px;
 	}
-	/* Grid layout (>4 items) — tldraw's TldrawUiGrid (4 equal columns). */
+	/* Grid layout (>4 items) — tldraw's TldrawUiGrid (ui.css:312-321): 4 equal columns,
+	   `overflow: hidden; padding: 2px`, children `margin: -2px`. */
 	.tlui-style-row--grid {
 		display: grid;
 		grid-template-columns: repeat(4, 1fr);
@@ -80,13 +82,17 @@
 		overflow: hidden;
 		padding: 2px;
 	}
+	.tlui-style-row--grid > .tlui-style-icon-btn {
+		margin: -2px;
+	}
+	/* tldraw's .tlui-toolbar-toggle-group-item (ui.css:1164-1167): fixed `width: 40px`,
+	   `padding: 0`, plus the shared .tlui-button `height: 40px`. */
 	.tlui-style-icon-btn {
 		position: relative;
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;
-		width: 100%;
-		min-width: 0;
+		width: 40px;
 		height: 40px;
 		padding: 0;
 		border: none;

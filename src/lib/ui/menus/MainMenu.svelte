@@ -5,6 +5,7 @@
 	import Popover from '../primitives/Popover.svelte';
 	import MenuGroup from '../primitives/MenuGroup.svelte';
 	import ActionMenuItem from '../primitives/ActionMenuItem.svelte';
+	import Submenu from '../primitives/Submenu.svelte';
 	import Icon from '../Icon.svelte';
 	import LanguageMenu from './LanguageMenu.svelte';
 
@@ -56,10 +57,44 @@
 	<MenuGroup>
 		<ActionMenuItem actionId="group" />
 		<ActionMenuItem actionId="ungroup" />
+	</MenuGroup>
+
+	<!-- Reorder: matches tldraw's ReorderMenuSubmenu set (all four registry actions). -->
+	<MenuGroup>
 		<ActionMenuItem actionId="bring-to-front" />
+		<ActionMenuItem actionId="bring-forward" />
+		<ActionMenuItem actionId="send-backward" />
 		<ActionMenuItem actionId="send-to-back" />
-		<ActionMenuItem actionId="flip-horizontal" />
-		<ActionMenuItem actionId="flip-vertical" />
+	</MenuGroup>
+
+	<!-- Arrange: align / distribute / stretch / stack / rotate / flip, grouped into a
+	     submenu (the existing Submenu primitive, as used by LanguageMenu) to keep the
+	     top-level menu short. Every row maps to an action that exists in the registry. -->
+	<MenuGroup>
+		<Submenu label="Arrange" side="right">
+			<MenuGroup>
+				<ActionMenuItem actionId="align-left" />
+				<ActionMenuItem actionId="align-center-horizontal" />
+				<ActionMenuItem actionId="align-right" />
+				<ActionMenuItem actionId="align-top" />
+				<ActionMenuItem actionId="align-center-vertical" />
+				<ActionMenuItem actionId="align-bottom" />
+			</MenuGroup>
+			<MenuGroup>
+				<ActionMenuItem actionId="distribute-horizontal" />
+				<ActionMenuItem actionId="distribute-vertical" />
+				<ActionMenuItem actionId="stretch-horizontal" />
+				<ActionMenuItem actionId="stretch-vertical" />
+				<ActionMenuItem actionId="stack-horizontal" />
+				<ActionMenuItem actionId="stack-vertical" />
+			</MenuGroup>
+			<MenuGroup>
+				<ActionMenuItem actionId="rotate-cw" />
+				<ActionMenuItem actionId="rotate-ccw" />
+				<ActionMenuItem actionId="flip-horizontal" />
+				<ActionMenuItem actionId="flip-vertical" />
+			</MenuGroup>
+		</Submenu>
 	</MenuGroup>
 
 	<!-- View -->
