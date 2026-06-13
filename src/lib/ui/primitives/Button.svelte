@@ -67,35 +67,40 @@
 		-webkit-user-select: none;
 		z-index: 0;
 	}
-	/* The fill layer (hover / active) — an inset rounded rectangle. */
+	/* The fill layer (hover / active). Ported 1:1 from tldraw's ui.css: the
+	   background is ALWAYS --tl-color-muted-2 and OPACITY is toggled (0 → 1). Active
+	   swaps the background to --tl-color-hint. Because hover changes opacity and
+	   active changes background, hover never overrides the active highlight (this is
+	   what kept tldraw's selected buttons from greying out on hover). */
 	.tlui-button::after {
 		content: '';
 		position: absolute;
 		inset: 4px;
 		border-radius: var(--tl-radius-2, 6px);
-		background: transparent;
+		background: var(--tl-color-muted-2, rgba(0, 0, 0, 0.043));
+		opacity: 0;
 		z-index: -1;
 	}
 	.tlui-button:hover:not(:disabled)::after {
-		background: var(--tl-color-muted-2, rgba(0, 0, 0, 0.043));
+		opacity: 1;
 	}
 	.tlui-button:disabled {
 		opacity: 0.4;
 		cursor: default;
 	}
-	.tlui-button--active,
-	.tlui-button[data-isactive='true'] {
-		color: var(--tl-color-selected-contrast, #fff);
-	}
+	/* Base active = subtle hint (tldraw: .tlui-button[data-isactive]::after { hint }).
+	   The icon keeps its default colour; only TOOL buttons go blue + white (below). */
 	.tlui-button--active::after,
 	.tlui-button[data-isactive='true']::after {
-		background: var(--tl-color-selected, #4465e9);
+		background: var(--tl-color-hint, hsl(0, 0%, 0%, 5.5%));
+		opacity: 1;
 	}
 	.tlui-button--primary {
 		color: var(--tl-color-selected-contrast, #fff);
 	}
 	.tlui-button--primary::after {
 		background: var(--tl-color-primary, #4465e9);
+		opacity: 1;
 	}
 	.tlui-button--danger {
 		color: var(--tl-color-danger, #e03131);
@@ -109,6 +114,17 @@
 	}
 	.tlui-button--tool::after {
 		border-radius: 8px;
+	}
+	/* Active TOOL = strong selected blue + white icon (tldraw:
+	   .tlui-button__tool[aria-pressed='true']). Overrides the base hint above. */
+	.tlui-button--tool.tlui-button--active,
+	.tlui-button--tool[data-isactive='true'] {
+		color: var(--tl-color-selected-contrast, #fff);
+	}
+	.tlui-button--tool.tlui-button--active::after,
+	.tlui-button--tool[data-isactive='true']::after {
+		background: var(--tl-color-selected, hsl(214, 84%, 56%));
+		opacity: 1;
 	}
 	.tlui-button--menu {
 		justify-content: flex-start;
