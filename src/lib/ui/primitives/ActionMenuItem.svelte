@@ -18,7 +18,6 @@
 {#if action}
 	<MenuItem
 		label={action.label}
-		icon={action.icon}
 		kbd={action.kbd}
 		checked={action.checkbox ? (checked ?? false) : undefined}
 		onSelect={() => action.onSelect(source)}

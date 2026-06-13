@@ -1,6 +1,5 @@
 <script lang="ts">
 	import type { TLLineShape } from '@tldraw/tlschema';
-	import { getPerfectDashProps } from '@tldraw/editor';
 	import { getDisplayValues, getPathForLineShape, type LineShapeUtil } from '@tldraw/tldraw';
 	import { getEditor } from '$lib/state-svelte';
 
@@ -23,17 +22,17 @@
 		if (dash === 'draw') {
 			return [{ d: path.toDrawD({ strokeWidth, randomSeed: shape.id, passes: 1, offset: 0 }) }];
 		}
-		if (dash === 'solid') {
+		if (dash !== 'dashed' && dash !== 'dotted') {
+			// 'solid' (and any non-dashed value) → one plain path.
 			return [{ d: path.toD() }];
 		}
-		const length = path.toGeometry().length || 1;
-		const { strokeDasharray, strokeDashoffset } = getPerfectDashProps(length, strokeWidth, {
-			style: dash,
-			snap: dash === 'dotted' ? 4 : 1,
-			start: 'outset',
-			end: 'outset'
-		});
-		return [{ d: path.toD(), dasharray: strokeDasharray, dashoffset: strokeDashoffset }];
+		// dashed / dotted: one sub-path per segment, each dashed over its own length
+		// with 'outset' joints — faithful to upstream PathBuilder.toDashedSvg (the line
+		// renderer passes only { style, strokeWidth }). Each segment of a multi-point
+		// line restarts the dash pattern at its vertex instead of dashing end-to-end.
+		return path
+			.toDashedSegments({ style: dash, strokeWidth })
+			.map((s) => ({ d: s.d, dasharray: s.strokeDasharray, dashoffset: s.strokeDashoffset }));
 	});
 </script>
 

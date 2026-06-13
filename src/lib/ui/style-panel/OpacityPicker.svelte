@@ -22,7 +22,7 @@
 	const OPACITIES = [0.1, 0.25, 0.5, 0.75, 1] as const;
 
 	function nearestStop(v: number): number {
-		let nearest = OPACITIES[0];
+		let nearest: number = OPACITIES[0];
 		for (const stop of OPACITIES) {
 			if (Math.abs(stop - v) < Math.abs(nearest - v)) nearest = stop;
 		}

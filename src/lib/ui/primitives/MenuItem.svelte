@@ -1,6 +1,5 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
-	import Icon from '../Icon.svelte';
 	import Kbd from './Kbd.svelte';
 	import { getPopoverClose } from './popover-context.svelte';
 
@@ -8,7 +7,9 @@
 	const closePopover = getPopoverClose();
 
 	// From-scratch menu item (no third-party UI lib). Mirrors tldraw's
-	// TldrawUiMenuItem: icon + label + optional kbd + checkbox state.
+	// TldrawUiMenuItem `menu`/`context-menu` rows: label + optional kbd +
+	// checkbox state. These rows are text-only — tldraw keeps the `icon` prop
+	// (kept here for caller compatibility) but does NOT render it for menu rows.
 	let {
 		label,
 		icon,
@@ -53,9 +54,6 @@
 >
 	{#if checked !== undefined}
 		<span class="tlui-menu-item__check" aria-hidden="true">{checked ? '✓' : ''}</span>
-	{/if}
-	{#if icon}
-		<span class="tlui-menu-item__icon"><Icon {icon} small /></span>
 	{/if}
 	<span class="tlui-menu-item__label"
 		>{label}{#if children}{@render children()}{/if}</span

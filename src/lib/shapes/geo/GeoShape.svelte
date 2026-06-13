@@ -1,7 +1,6 @@
 <script lang="ts">
 	import type { TLGeoShape } from '@tldraw/tlschema';
 	import { getGeoShapePath, getDisplayValues, type GeoShapeUtil } from '@tldraw/tldraw';
-	import { getPerfectDashProps } from '@tldraw/editor';
 	import { getEditor } from '$lib/state-svelte';
 	import RichTextLabel from '../shared/RichTextLabel.svelte';
 
@@ -51,21 +50,18 @@
 		if (dash === 'draw') {
 			return [{ d: path.toDrawD({ strokeWidth, randomSeed: shape.id, passes: 1, offset: 0 }) }];
 		}
-		if (dash === 'solid') {
+		if (dash !== 'dashed' && dash !== 'dotted') {
+			// 'solid' (and any non-dashed value) → one plain path.
 			return [{ d: path.toD() }];
 		}
-		// dashed / dotted: split into runs between move commands and dash each.
-		// PathBuilderGeometry gives us each segment's length; approximate by
-		// dashing the whole path with perfect-dash props over its total length.
-		const geom = path.toGeometry();
-		const length = geom.length || 1;
-		const { strokeDasharray, strokeDashoffset } = getPerfectDashProps(length, strokeWidth, {
-			style: dash,
-			snap: dash === 'dotted' ? 4 : 1,
-			end: 'outset',
-			start: 'outset'
-		});
-		return [{ d: path.toD(), dasharray: strokeDasharray, dashoffset: strokeDashoffset }];
+		// dashed / dotted: one sub-path per command run, each dashed over its OWN
+		// length with 'outset' joints at corners — a faithful port of upstream
+		// PathBuilder.toDashedSvg (GeoShapeBody passes only { style, strokeWidth }).
+		// This makes dashes align cleanly to every edge/corner instead of wrapping
+		// the whole perimeter as one continuous stroke.
+		return path
+			.toDashedSegments({ style: dash, strokeWidth })
+			.map((s) => ({ d: s.d, dasharray: s.strokeDasharray, dashoffset: s.strokeDashoffset }));
 	});
 
 	const showFill = $derived(shape.props.fill !== 'none');
