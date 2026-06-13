@@ -90,20 +90,17 @@
 	<Keybindings />
 	<ContextMenu />
 
-	<!-- Top-left: the tldraw.com logo, then the MenuPanel (menu + page + quick actions). -->
-	<div class="tlui-layout__top-left">
-		<div class="tlui-panel tlui-layout__logo-panel">
-			<Logo />
-		</div>
-		<div class="tlui-panel">
-			<MainMenu />
-			<PageMenu />
-			{#if showQuickActionsInMenu}
-				<QuickActions />
-				<ActionsMenu />
-			{/if}
-		</div>
-	</div>
+	<!-- Top-left menu zone: a single connected corner block (logo + menu + page +
+	     quick actions) flush to the corner, matching tldraw's .tlui-menu-zone. -->
+	<nav class="tlui-menu-zone" aria-label="Menu">
+		<Logo />
+		<MainMenu />
+		<PageMenu />
+		{#if showQuickActionsInMenu}
+			<QuickActions />
+			<ActionsMenu />
+		{/if}
+	</nav>
 
 	<!-- Bottom-left: the navigation panel (minimap + zoom controls). -->
 	<div class="tlui-layout__bottom-left">
@@ -115,10 +112,10 @@
 		<ShareChrome />
 	</div>
 
-	<!-- Bottom-right: the 'Made with tldraw' badge + the help menu. -->
+	<!-- Bottom-right: the 'Made with' badge + the circular help menu button. -->
 	<div class="tlui-layout__bottom-right">
 		<MadeWithBadge />
-		<div class="tlui-panel">
+		<div class="tlui-help-menu">
 			<HelpMenu />
 		</div>
 	</div>
@@ -170,25 +167,36 @@
 		border-radius: var(--tl-radius-3, 9px);
 		box-shadow: var(--tl-shadow-3);
 	}
-	/* Top-left: logo panel + menu panel in a row (dotcom layout). */
-	.tlui-layout__top-left {
+	/* Top-left menu zone — a connected corner block (tldraw ui.css .tlui-menu-zone):
+	   flush to the corner, low-contrast bg, 2px background-colored right/bottom border
+	   and a single bottom-right radius so it reads as window chrome, not a card. */
+	.tlui-menu-zone {
 		position: absolute;
-		top: 8px;
-		left: 8px;
+		top: 0;
+		left: 0;
 		display: flex;
-		align-items: flex-start;
-		gap: 8px;
-	}
-	.tlui-layout__top-left .tlui-panel {
-		position: static;
-	}
-	.tlui-layout__logo-panel {
 		align-items: center;
+		width: fit-content;
+		padding: var(--tl-space-1, 2px);
+		background-color: var(--tl-color-low, #eceef0);
+		border-right: 2px solid var(--tl-color-background, #f9fafb);
+		border-bottom: 2px solid var(--tl-color-background, #f9fafb);
+		border-bottom-right-radius: var(--tl-radius-4, 11px);
+		z-index: var(--tl-layer-panels, 300);
+		pointer-events: all;
+	}
+	/* Circular help button (tldraw .tlui-help-menu). */
+	.tlui-help-menu {
+		display: flex;
+		border: 2px solid var(--tl-color-background, #f9fafb);
+		border-radius: 100%;
+		background: var(--tl-color-low, #eceef0);
+		pointer-events: all;
 	}
 	.tlui-layout__bottom-left {
 		position: absolute;
-		bottom: 8px;
-		left: 8px;
+		bottom: 0;
+		left: 0;
 	}
 	/* Bottom-right: the made-with badge + help panel, aligned to the bottom edge. */
 	.tlui-layout__bottom-right {
