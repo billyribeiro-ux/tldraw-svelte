@@ -44,8 +44,9 @@ test('clicking a geo-variant button activates the geo tool with that variant', a
 });
 
 test('keyboard shortcuts switch tools and fire actions', async ({ page }) => {
-	// Tool hotkeys (from the tools registry)
-	await page.locator('.tl-canvas').click({ position: { x: 4, y: 4 } });
+	// Tool hotkeys (from the tools registry). Click a clear canvas spot — the flush
+	// top-left menu zone now covers the corner (like tldraw), so {4,4} is chrome.
+	await page.locator('.tl-canvas').click({ position: { x: 400, y: 400 } });
 	await page.keyboard.press('a'); // arrow tool
 	await expect.poll(() => page.evaluate(() => window.editor.getCurrentToolId())).toBe('arrow');
 	await page.keyboard.press('v'); // select

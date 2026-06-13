@@ -81,14 +81,27 @@
 {/if}
 
 <style>
+	/* Connected bottom-left corner block (tldraw ui.css .tlui-navigation-panel +
+	   ::before): low-contrast bg with a 2px background-colored top/right border and a
+	   single top-right radius — the mirror of the top-left menu zone. */
 	.tlui-navigation-panel {
+		position: relative;
 		display: flex;
 		flex-direction: column-reverse;
+		width: min-content;
 		gap: var(--tl-space-1, 2px);
 		padding: var(--tl-space-1, 2px);
-		background: var(--tl-color-panel, #fff);
-		border-radius: var(--tl-radius-3, 9px);
-		box-shadow: var(--tl-shadow-3);
+	}
+	.tlui-navigation-panel::before {
+		content: '';
+		display: block;
+		position: absolute;
+		z-index: -1;
+		inset: -2px -2px 0 0;
+		border-top: 2px solid var(--tl-color-background, #f9fafb);
+		border-right: 2px solid var(--tl-color-background, #f9fafb);
+		border-top-right-radius: var(--tl-radius-4, 11px);
+		background-color: var(--tl-color-low, #eceef0);
 	}
 	.tlui-navigation-panel__controls {
 		display: flex;
