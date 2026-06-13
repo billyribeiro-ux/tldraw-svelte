@@ -220,14 +220,19 @@
 {/if}
 
 <style>
-	/* Each section is a padded cluster separated by a divider (tldraw layout). */
+	/* Ported from tldraw ui.css: .tlui-style-panel__section is a bare flex column —
+	   NO padding/gap (children own their spacing: button rows are 40px, the color
+	   grid pads 2px, the slider pads horizontally). Border-bottom on non-last
+	   sections; a section ending in the opacity slider gets margin-bottom:7px for
+	   visual balance (tldraw's :has(.tlui-slider__container:last-child) rule). */
 	.tlui-style-panel__section {
 		display: flex;
 		flex-direction: column;
-		gap: var(--tl-space-3, 8px);
-		padding: var(--tl-space-4, 12px);
 	}
 	.tlui-style-panel__section:not(:last-child) {
 		border-bottom: 1px solid var(--tl-color-divider, #e8e8e8);
+	}
+	.tlui-style-panel__section:has(.tlui-slider__container:last-child):not(:last-child) {
+		margin-bottom: 7px;
 	}
 </style>
