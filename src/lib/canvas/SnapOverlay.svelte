@@ -48,7 +48,7 @@
 	.tl-snaps :global(polyline),
 	.tl-snaps :global(line) {
 		fill: none;
-		stroke: var(--tl-selection-color, #4465e9);
+		stroke: var(--tl-color-snap, hsl(0, 76%, 60%));
 		stroke-width: 1;
 		vector-effect: non-scaling-stroke;
 	}

@@ -101,7 +101,7 @@
 		top: 0;
 		left: 0;
 		transform-origin: top left;
-		border: 1.5px solid var(--tl-selection-color, #4465e9);
+		border: 1.5px solid var(--tl-color-selection-stroke, hsl(214, 84%, 56%));
 		pointer-events: none;
 		box-sizing: border-box;
 	}
@@ -114,11 +114,13 @@
 	}
 	.tl-resize-handle {
 		position: absolute;
-		width: 10px;
-		height: 10px;
+		width: 9px;
+		height: 9px;
 		transform: translate(-50%, -50%);
-		background: #ffffff;
-		border: 1.5px solid var(--tl-selection-color, #4465e9);
+		/* Handle fill = theme background (near-black in dark mode), not pure white;
+		   stroke = themed selection-stroke (tldraw SelectionForegroundOverlayUtil). */
+		background: var(--tl-color-background, #f9fafb);
+		border: 1.5px solid var(--tl-color-selection-stroke, hsl(214, 84%, 56%));
 		border-radius: 2px;
 		pointer-events: all;
 		cursor: nwse-resize;

@@ -228,6 +228,14 @@
 		--tl-shadow-3:
 			0px 1px 2px hsl(0, 0%, 0%, 28%), 0px 2px 6px hsl(0, 0%, 0%, 14%),
 			inset 0px 0px 0px 1px var(--tl-color-panel-contrast);
+		/* Canvas overlay colors (from editor.css .tl-theme__light). The brush is a
+		   translucent GREY (not blue) and snap lines are RED — these were hardcoded
+		   blue before. */
+		--tl-color-selection-fill: hsl(210, 100%, 56%, 24%);
+		--tl-color-selection-stroke: hsl(214, 84%, 56%);
+		--tl-color-brush-fill: hsl(0, 0%, 56%, 10.2%);
+		--tl-color-brush-stroke: hsl(0, 0%, 56%, 25.1%);
+		--tl-color-snap: hsl(0, 76%, 60%);
 		--tl-canvas-bg: var(--tl-color-background);
 	}
 
@@ -262,13 +270,22 @@
 		--tl-color-info: hsl(199, 92%, 56%);
 		--tl-color-warning: hsl(36, 100%, 57%);
 		--tl-color-danger: hsl(0, 82%, 66%);
-		--tl-shadow-1: 0px 1px 2px hsl(0, 0%, 0%, 25%), 0px 1px 3px hsl(0, 0%, 0%, 9%);
-		--tl-shadow-2:
-			0px 0px 2px hsl(0, 0%, 0%, 16%), 0px 2px 3px hsl(0, 0%, 0%, 24%),
-			0px 2px 6px hsl(0, 0%, 0%, 0.1), inset 0px 0px 0px 1px var(--tl-color-panel-contrast);
-		--tl-shadow-3:
-			0px 1px 2px hsl(0, 0%, 0%, 28%), 0px 2px 6px hsl(0, 0%, 0%, 14%),
+		/* Dark shadows (from editor.css .tl-theme__dark) — were wrongly copied from the
+		   light theme, making every dark panel/menu shadow incorrect. */
+		--tl-shadow-1:
+			0px 1px 2px hsl(0, 0%, 0%, 16.1%), 0px 1px 3px hsl(0, 0%, 0%, 22%),
 			inset 0px 0px 0px 1px var(--tl-color-panel-contrast);
+		--tl-shadow-2:
+			0px 1px 3px hsl(0, 0%, 0%, 66.6%), 0px 2px 6px hsl(0, 0%, 0%, 33%),
+			inset 0px 0px 0px 1px var(--tl-color-panel-contrast);
+		--tl-shadow-3:
+			0px 1px 3px hsl(0, 0%, 0%, 50%), 0px 2px 12px hsl(0, 0%, 0%, 50%),
+			inset 0px 0px 0px 1px var(--tl-color-panel-contrast);
+		--tl-color-selection-fill: hsl(209, 100%, 57%, 20%);
+		--tl-color-selection-stroke: hsl(214, 84%, 56%);
+		--tl-color-brush-fill: hsl(0, 0%, 56%, 10.2%);
+		--tl-color-brush-stroke: hsl(0, 0%, 56%, 25.1%);
+		--tl-color-snap: hsl(0, 76%, 60%);
 		--tl-canvas-bg: var(--tl-color-background);
 	}
 </style>
