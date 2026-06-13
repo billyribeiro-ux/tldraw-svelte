@@ -400,7 +400,7 @@ test.describe('popover stays on screen', () => {
 		const vp = page.viewportSize()!;
 		await drawRect(page, 80, 80, 220, 180);
 		await page.getByTestId('style.geo').click();
-		const menu = page.locator('.tlui-style-dropdown__menu');
+		const menu = page.locator('.tlui-style-dropdown__grid');
 		await expect(menu).toBeVisible();
 		const r = await menu.evaluate((el) => {
 			const b = el.getBoundingClientRect();
@@ -412,6 +412,6 @@ test.describe('popover stays on screen', () => {
 		expect(r.right).toBeLessThanOrEqual(vp.width + 1);
 		expect(r.bottom).toBeLessThanOrEqual(vp.height + 1);
 		// And the options are reachable.
-		await expect(page.getByRole('menuitemcheckbox', { name: /ellipse/i })).toBeVisible();
+		await expect(page.getByTestId('style.geo.ellipse')).toBeVisible();
 	});
 });

@@ -2,13 +2,13 @@
 	import type { StyleProp } from '@tldraw/editor';
 	import type { StylePanelModel } from './style-panel.svelte';
 	import Popover from '../primitives/Popover.svelte';
-	import MenuItem from '../primitives/MenuItem.svelte';
 	import Icon from '../Icon.svelte';
 
-	// Code-faithful port of tldraw's StylePanelDropdownPicker: a single `button__menu`
-	// showing the title label + the CURRENT value's icon, opening a dropdown of all
-	// options. Used for large enums (geo/spline/arrowheads) that can't fit as button
-	// rows. data-testid is `style.<uiType>`.
+	// Faithful port of tldraw's StylePanelDropdownPicker: a `button__menu` showing the
+	// title + the CURRENT value's icon, opening a popover whose content is a GRID of
+	// icon-only toggle buttons (tldraw uses `orientation={items.length > 4 ? 'grid' :
+	// 'horizontal'}`) — NOT a tall vertical labelled list. Each item's data-testid is
+	// `style.<uiType>.<value>`; the trigger is `style.<uiType>`.
 	interface Option {
 		value: T;
 		label: string;
@@ -29,13 +29,22 @@
 		options: Option[];
 	} = $props();
 
+	let open = $state(false);
+
 	const current = $derived(model.getValue(prop));
 	const currentOption = $derived(options.find((o) => o.value === current));
 	const currentIcon = $derived(currentOption?.icon ?? options[0]?.icon ?? 'geo-rectangle');
+	// >4 options → grid (4 cols), else a single horizontal row, matching tldraw.
+	const isGrid = $derived(options.length > 4);
+
+	function choose(value: T) {
+		model.setStyle(prop, value);
+		open = false;
+	}
 </script>
 
 <div class="tlui-style-panel__dropdown-picker">
-	<Popover side="bottom" align="end">
+	<Popover bind:open side="bottom" align="end">
 		{#snippet trigger({ toggle, props })}
 			<button
 				class="tlui-style-menu-btn"
@@ -51,14 +60,28 @@
 				<Icon icon={currentIcon} label="" />
 			</button>
 		{/snippet}
-		<div class="tlui-style-dropdown__menu">
+		<div
+			class="tlui-style-dropdown__grid"
+			class:tlui-style-dropdown__grid--row={!isGrid}
+			role="radiogroup"
+			aria-label={title}
+			data-testid="style.{uiType}.menu"
+		>
 			{#each options as opt (opt.value)}
-				<MenuItem
-					label={opt.label}
-					icon={opt.icon}
-					checked={current === opt.value}
-					onSelect={() => model.setStyle(prop, opt.value)}
-				/>
+				<button
+					class="tlui-style-icon-btn"
+					class:tlui-style-icon-btn--active={current === opt.value}
+					type="button"
+					role="radio"
+					aria-checked={current === opt.value}
+					data-testid="style.{uiType}.{opt.value}"
+					data-value={opt.value}
+					title="{title} — {opt.label}"
+					aria-label="{title} — {opt.label}"
+					onclick={() => choose(opt.value)}
+				>
+					<Icon icon={opt.icon} label="" />
+				</button>
 			{/each}
 		</div>
 	</Popover>
@@ -94,9 +117,46 @@
 	.tlui-style-menu-btn__label {
 		flex: 1 1 auto;
 	}
-	.tlui-style-dropdown__menu {
-		max-height: 50vh;
-		overflow-y: auto;
-		text-transform: capitalize;
+	/* The popover content: a compact 4-column grid of icon buttons (tldraw's
+	   TldrawUiToolbar orientation="grid"), or a single row for <=4 options. */
+	.tlui-style-dropdown__grid {
+		display: grid;
+		grid-template-columns: repeat(4, 1fr);
+		gap: 0;
+	}
+	.tlui-style-dropdown__grid--row {
+		grid-template-columns: repeat(var(--cols, 4), 1fr);
+		display: flex;
+	}
+	.tlui-style-icon-btn {
+		position: relative;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 40px;
+		height: 40px;
+		padding: 0;
+		border: none;
+		background: transparent;
+		color: var(--tl-color-text-1, #2d2d2d);
+		cursor: pointer;
+		z-index: 0;
+	}
+	.tlui-style-icon-btn::after {
+		content: '';
+		position: absolute;
+		inset: 4px;
+		border-radius: var(--tl-radius-2, 6px);
+		background: transparent;
+		z-index: -1;
+	}
+	.tlui-style-icon-btn:hover::after {
+		background: var(--tl-color-muted-2, rgba(0, 0, 0, 0.043));
+	}
+	.tlui-style-icon-btn--active {
+		color: var(--tl-color-selected-contrast, #fff);
+	}
+	.tlui-style-icon-btn--active::after {
+		background: var(--tl-color-selected, #4465e9);
 	}
 </style>
