@@ -108,10 +108,9 @@ test('Shape dropdown changes the geo type and the rendered path', async ({ page 
 		.locator('[data-shape-id="shape:gl5"] path.tl-geo__stroke')
 		.first()
 		.getAttribute('d');
-	// Open the Shape dropdown and pick Ellipse from the menu (items are
-	// menuitemcheckbox since they carry checked state).
+	// Open the Shape dropdown (a grid of icon buttons, like tldraw) and pick Ellipse.
 	await page.getByTestId('style.geo').click();
-	await page.getByRole('menuitemcheckbox', { name: /ellipse/i }).click();
+	await page.getByTestId('style.geo.ellipse').click();
 	await expect
 		.poll(() =>
 			page.evaluate(
