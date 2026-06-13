@@ -153,13 +153,11 @@
 	.tlui-style-icon-btn:hover::after {
 		background: var(--tl-color-muted-2, rgba(0, 0, 0, 0.043));
 	}
-	.tlui-style-icon-btn--active {
-		color: var(--tl-color-selected-contrast, #fff);
-	}
-	/* Selected wins on hover too (see StylePropPicker — :hover::after outranks
-	   --active::after, which made the blue disappear on hover). */
+	/* Selected style-panel button = subtle --tl-color-hint (tldraw.css verbatim:
+	   `.tlui-button[data-isactive='true']::after { background: var(--tl-color-hint) }`),
+	   icon keeps its default colour. Wins on hover too. */
 	.tlui-style-icon-btn--active::after,
 	.tlui-style-icon-btn--active:hover::after {
-		background: var(--tl-color-selected, #4465e9);
+		background: var(--tl-color-hint, hsl(0, 0%, 0%, 5.5%));
 	}
 </style>

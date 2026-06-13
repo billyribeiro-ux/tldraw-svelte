@@ -103,13 +103,13 @@
 	.tlui-style-icon-btn:hover::after {
 		background: var(--tl-color-muted-2, rgba(0, 0, 0, 0.043));
 	}
-	.tlui-style-icon-btn--active {
-		color: var(--tl-color-selected-contrast, #fff);
-	}
-	/* The selected state must win on hover too (a bare :hover::after has higher
-	   specificity than --active::after, which is what made the blue vanish on hover). */
+	/* Selected STYLE-PANEL button. Verified verbatim against tldraw.css:
+	   `.tlui-button[data-isactive='true']::after { background: var(--tl-color-hint) }`
+	   — a subtle hint, NOT the strong --tl-color-selected blue (that's only for active
+	   TOOLBAR tools), and the icon keeps its default colour. Also wins on hover (a bare
+	   :hover::after outranks --active::after, which had made the highlight vanish). */
 	.tlui-style-icon-btn--active::after,
 	.tlui-style-icon-btn--active:hover::after {
-		background: var(--tl-color-selected, #4465e9);
+		background: var(--tl-color-hint, hsl(0, 0%, 0%, 5.5%));
 	}
 </style>
