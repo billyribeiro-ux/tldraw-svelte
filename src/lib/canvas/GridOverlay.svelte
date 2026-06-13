@@ -45,7 +45,7 @@
 		width: 100%;
 		height: 100%;
 		pointer-events: none;
-		color: var(--tl-color-text-3, rgba(0, 0, 0, 0.12));
+		color: var(--tl-color-grid, hsl(0, 0%, 43%));
 	}
 	.tl-grid circle {
 		fill: currentColor;

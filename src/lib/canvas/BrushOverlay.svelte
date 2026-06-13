@@ -25,8 +25,8 @@
 		top: 0;
 		left: 0;
 		transform-origin: top left;
-		background: rgba(68, 101, 233, 0.1);
-		border: 1px solid var(--tl-selection-color, #4465e9);
+		background: var(--tl-color-brush-fill, hsl(0, 0%, 56%, 10.2%));
+		border: 1px solid var(--tl-color-brush-stroke, hsl(0, 0%, 56%, 25.1%));
 		pointer-events: none;
 	}
 </style>
