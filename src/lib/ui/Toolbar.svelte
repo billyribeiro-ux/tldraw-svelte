@@ -1,9 +1,23 @@
 <script lang="ts">
-	import { getEditor, getTools, TOOLBAR_ORDER } from '$lib/ui/context';
+	import {
+		getEditor,
+		getTools,
+		TOOLBAR_ORDER,
+		getBreakpointState,
+		BREAKPOINT
+	} from '$lib/ui/context';
 	import { fromComputed } from '$lib/state-svelte/use-value.svelte';
 	import Button from './primitives/Button.svelte';
 	import Popover from './primitives/Popover.svelte';
 	import Icon from './Icon.svelte';
+	import QuickActions from './menus/QuickActions.svelte';
+	import ActionsMenu from './menus/ActionsMenu.svelte';
+
+	// tldraw shows the quick-actions + actions-menu in the BOTTOM toolbar (as a
+	// controls pill above the tools) when below the TABLET breakpoint, and in the
+	// top-left menu panel at/above it. (DefaultToolbar vs DefaultMenuPanel.)
+	const bp = getBreakpointState();
+	const showExtrasControls = $derived(bp.value < BREAKPOINT.TABLET);
 
 	// From-scratch toolbar matching tldraw's OverflowingToolbar: a flat row of tool
 	// buttons in tldraw's exact order (select, hand, draw, eraser, arrow, text, note,
@@ -79,94 +93,127 @@
 </script>
 
 <div class="tlui-toolbar" role="toolbar" aria-label="Tools">
-	{#if showLock}
+	<!-- Extras controls pill ABOVE the tools (tldraw .tlui-main-toolbar__extras):
+	     quick-actions + actions-menu (only below TABLET) and the tool-lock toggle. -->
+	{#if showExtrasControls || showLock}
 		<div class="tlui-toolbar__extras">
-			<Button
-				type="tool"
-				isActive={isToolLocked.current}
-				title="Tool lock"
-				ariaLabel="Tool lock"
-				onclick={toggleLock}
-				data-testid="toolbar.tool-lock"
-			>
-				<Icon icon={isToolLocked.current ? 'lock' : 'unlock'} label="Tool lock" />
-			</Button>
-		</div>
-	{/if}
-	<!-- The measured/clipped row of visible tools. overflow:hidden here is why the
-	     overflow popover must live OUTSIDE this element (else it'd be clipped). -->
-	<div class="tlui-toolbar__inner" {@attach measure}>
-		{#each visibleTools as tool (tool.id)}
-			<Button
-				type="tool"
-				isActive={isActive(tool)}
-				title={tool.label}
-				ariaLabel={tool.label}
-				onclick={() => tool.onSelect('toolbar')}
-				data-tool={tool.id}
-			>
-				<Icon icon={tool.icon} label={tool.label} />
-			</Button>
-		{/each}
-	</div>
-
-	{#if overflowTools.length > 0}
-		<Popover side="top" align="end">
-			{#snippet trigger({ toggle, props })}
+			{#if showExtrasControls}
+				<div class="tlui-toolbar__extras__controls" role="group" aria-label="Quick actions">
+					<QuickActions />
+					<ActionsMenu />
+				</div>
+			{/if}
+			{#if showLock}
 				<Button
 					type="tool"
-					title="More tools"
-					ariaLabel="More tools"
-					isActive={overflowTools.some((t) => isActive(t))}
-					onclick={toggle}
-					data-testid="toolbar.more"
-					{...props}
+					isActive={isToolLocked.current}
+					title="Tool lock"
+					ariaLabel="Tool lock"
+					onclick={toggleLock}
+					data-testid="toolbar.tool-lock"
 				>
-					<Icon icon="chevron-up" label="More tools" />
+					<Icon icon={isToolLocked.current ? 'lock' : 'unlock'} label="Tool lock" />
 				</Button>
-			{/snippet}
-			<div class="tlui-toolbar__overflow" data-testid="toolbar.overflow-grid">
-				{#each overflowTools as tool (tool.id)}
+			{/if}
+		</div>
+	{/if}
+
+	<div class="tlui-toolbar__tools">
+		<!-- The measured/clipped row of visible tools. overflow:hidden here is why the
+		     overflow popover must live OUTSIDE this element (else it'd be clipped). -->
+		<div class="tlui-toolbar__inner" {@attach measure}>
+			{#each visibleTools as tool (tool.id)}
+				<Button
+					type="tool"
+					isActive={isActive(tool)}
+					title={tool.label}
+					ariaLabel={tool.label}
+					onclick={() => tool.onSelect('toolbar')}
+					data-tool={tool.id}
+				>
+					<Icon icon={tool.icon} label={tool.label} />
+				</Button>
+			{/each}
+		</div>
+
+		{#if overflowTools.length > 0}
+			<Popover side="top" align="end">
+				{#snippet trigger({ toggle, props })}
 					<Button
 						type="tool"
-						isActive={isActive(tool)}
-						title={tool.label}
-						ariaLabel={tool.label}
-						onclick={() => tool.onSelect('toolbar')}
-						data-tool={tool.id}
+						title="More tools"
+						ariaLabel="More tools"
+						isActive={overflowTools.some((t) => isActive(t))}
+						onclick={toggle}
+						data-testid="toolbar.more"
+						{...props}
 					>
-						<Icon icon={tool.icon} label={tool.label} />
+						<Icon icon="chevron-up" label="More tools" />
 					</Button>
-				{/each}
-			</div>
-		</Popover>
-	{/if}
+				{/snippet}
+				<div class="tlui-toolbar__overflow" data-testid="toolbar.overflow-grid">
+					{#each overflowTools as tool (tool.id)}
+						<Button
+							type="tool"
+							isActive={isActive(tool)}
+							title={tool.label}
+							ariaLabel={tool.label}
+							onclick={() => tool.onSelect('toolbar')}
+							data-tool={tool.id}
+						>
+							<Icon icon={tool.icon} label={tool.label} />
+						</Button>
+					{/each}
+				</div>
+			</Popover>
+		{/if}
+	</div>
 </div>
 
 <style>
+	/* The toolbar is a centered column: the extras pill sits ABOVE the tools pill,
+	   matching tldraw's .tlui-main-toolbar__inner with __extras on top of __tools. */
 	.tlui-toolbar {
 		position: absolute;
 		bottom: 0;
 		left: 50%;
 		display: flex;
+		flex-direction: column;
 		align-items: center;
 		transform: translateX(-50%);
-		/* Leave room for the corner zones (navigation panel bottom-left, helpers)
-		   so the centered toolbar never overlaps them — tldraw reserves these zones.
-		   Beyond this width the tools overflow into the "..." popover. */
-		max-width: calc(100vw - 480px);
 		margin-bottom: var(--tl-space-3, 8px);
+		z-index: var(--tl-layer-panels, 300);
+	}
+	/* The tools pill — the rounded white bar of tool buttons. */
+	.tlui-toolbar__tools {
+		display: flex;
+		align-items: center;
+		/* Leave room for the corner zones (navigation bottom-left, helpers) so the
+		   centered toolbar never overlaps them; beyond this the tools overflow. */
+		max-width: calc(100vw - 480px);
 		padding: var(--tl-space-1, 2px);
 		background: var(--tl-color-panel, #fff);
 		border-radius: var(--tl-radius-4, 11px);
 		box-shadow: var(--tl-shadow-2);
-		z-index: var(--tl-layer-panels, 300);
 	}
+	/* Extras row (quick actions + lock), left-aligned above the tools (tldraw). */
 	.tlui-toolbar__extras {
 		display: flex;
+		align-self: flex-start;
+		align-items: flex-end;
+		margin-left: 8px;
+	}
+	/* The quick-actions controls pill: a low-contrast group with rounded TOP corners
+	   that connects to the tools pill below (tldraw .tlui-main-toolbar__extras__controls). */
+	.tlui-toolbar__extras__controls {
+		display: flex;
 		align-items: center;
-		margin-right: var(--tl-space-1, 2px);
-		border-right: 1px solid var(--tl-color-divider, #e8e8e8);
+		padding: var(--tl-space-1, 2px);
+		background: var(--tl-color-low, var(--tl-color-muted-2, rgba(0, 0, 0, 0.043)));
+		border: 2px solid var(--tl-color-background, #f9fafb);
+		border-bottom: none;
+		border-top-left-radius: var(--tl-radius-4, 11px);
+		border-top-right-radius: var(--tl-radius-4, 11px);
 	}
 	.tlui-toolbar__inner {
 		display: flex;

@@ -59,6 +59,9 @@
 	const breakpoint = new BreakpointState();
 	setBreakpoint(breakpoint);
 	const isMobile = $derived(breakpoint.value < BREAKPOINT.TABLET_SM);
+	// tldraw: quick-actions live in the top-left menu panel only at/above TABLET;
+	// below that they move into the bottom toolbar (handled in Toolbar.svelte).
+	const showQuickActionsInMenu = $derived(breakpoint.value >= BREAKPOINT.TABLET);
 
 	// When debug mode is on, a thin readout strip sits at the very bottom; lift the
 	// floating toolbar so the two don't overlap.
@@ -95,8 +98,10 @@
 		<div class="tlui-panel">
 			<MainMenu />
 			<PageMenu />
-			<QuickActions />
-			<ActionsMenu />
+			{#if showQuickActionsInMenu}
+				<QuickActions />
+				<ActionsMenu />
+			{/if}
 		</div>
 	</div>
 
