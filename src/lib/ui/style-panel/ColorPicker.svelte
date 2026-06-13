@@ -37,15 +37,19 @@
 </div>
 
 <style>
-	/* tldraw's color grid (.tlui-grid): 4 equal columns, `padding: 2px`. Each swatch
-	   is a FIXED 40px square (matching .tlui-toolbar-toggle-group-item), not a 1fr
-	   cell stretched square via aspect-ratio. */
+	/* tldraw's color grid — TldrawUiGrid, verbatim from ui.css:312-321: 4 equal columns,
+	   `overflow: hidden; padding: 2px`, children `margin: -2px`. The swatches are
+	   .tlui-toolbar-toggle-group-item (width:40px) + .tlui-button (height:40px); the
+	   -2px margins collapse the columns into the 148px panel with no clip. */
 	.tlui-color-grid {
 		display: grid;
 		grid-template-columns: repeat(4, 1fr);
 		grid-auto-flow: row;
 		overflow: hidden;
 		padding: 2px;
+	}
+	.tlui-color-grid > .tlui-color-btn {
+		margin: -2px;
 	}
 	.tlui-color-btn {
 		position: relative;
@@ -54,7 +58,6 @@
 		justify-content: center;
 		width: 40px;
 		height: 40px;
-		min-width: 0;
 		padding: 0;
 		border: none;
 		background: transparent;

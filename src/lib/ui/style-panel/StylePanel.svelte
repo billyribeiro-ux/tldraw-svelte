@@ -20,15 +20,20 @@
 {/if}
 
 <style>
-	/* tldraw's style panel is a fixed 148px (max-width 148px). Content fits within
-	   it via 1fr grid columns — NOT fixed 40px buttons (which over-widen it). */
+	/* tldraw's style panel is a fixed 148px (max-width 148px), per ui.css:1096
+	   (position / z-index / pointer-events / width). It carries NO overflow and NO
+	   max-height: the dropdown pickers fly out to the LEFT of the panel, and ANY
+	   overflow here (even overflow-y) forces overflow-x to clip per the CSS spec,
+	   hiding that flyout behind the canvas. Upstream avoids this by portaling its
+	   popovers; we keep the panel unclipped so the inline flyout paints above the
+	   canvas (the panel's --tl-layer-panels stacking context sits above it). */
 	.tlui-style-panel {
+		position: relative;
+		z-index: var(--tl-layer-panels, 300);
 		display: flex;
 		flex-direction: column;
 		width: 148px;
 		max-width: 148px;
-		max-height: calc(100vh - 120px);
-		overflow-y: auto;
 		background: var(--tl-color-panel, #fff);
 		border-radius: var(--tl-radius-3, 9px);
 		box-shadow: var(--tl-shadow-3);

@@ -30,13 +30,21 @@
 	<MenuGroup>
 		<ActionMenuItem actionId="zoom-in" />
 		<ActionMenuItem actionId="zoom-out" />
+		<ActionMenuItem actionId="zoom-to-100" />
 		<ActionMenuItem actionId="zoom-to-fit" />
 		<ActionMenuItem actionId="zoom-to-selection" />
-		<ActionMenuItem actionId="reset-zoom" />
 	</MenuGroup>
 </Popover>
 
 <style>
+	/* Ported from tldraw ui.css (.tlui-zoom-menu__button): a fixed 60px-wide
+	   trigger so the live percentage label has a stable width. Targets the
+	   trigger by its testid to avoid clobbering Button's own class list. */
+	:global(button[data-testid='zoom-menu.button']) {
+		width: 60px;
+		min-width: 60px;
+		text-align: center;
+	}
 	.tlui-zoom-menu__value {
 		min-width: 40px;
 		text-align: center;

@@ -684,6 +684,107 @@ export class PathBuilder {
 		throw new Error('PathBuilder.toDashedSvg is not used in the Svelte port; use toD()/getPerfectDashProps()')
 	}
 
+	/**
+	 * Svelte-port replacement for {@link toDashedSvg}. Returns one dashed sub-path per
+	 * command run — each edge/curve gets its own {@link getPerfectDashProps} computed
+	 * over that run's own length, with `'outset'` terminals at interior joints — exactly
+	 * mirroring upstream `PathBuilder.toDashedSvg`. By default every command is its own
+	 * run (so dashes start/end cleanly on each corner); a command with
+	 * `mergeWithPrevious` is folded into the preceding run (e.g. arc→bézier groups).
+	 * Render each entry as a separate `<path>` so the dash pattern aligns at corners
+	 * instead of wrapping the whole perimeter as one continuous stroke.
+	 */
+	toDashedSegments(
+		opts: DashedPathBuilderOpts
+	): Array<{ d: string; strokeDasharray: string; strokeDashoffset: string }> {
+		const { style, strokeWidth, snap, lengthRatio } = opts
+
+		const segments: Array<{ d: string; strokeDasharray: string; strokeDashoffset: string }> = []
+
+		let isCurrentPathClosed = false
+		let isSkippingCurrentLine = false
+		let currentLineOpts: PathBuilderLineOpts | undefined = undefined
+
+		let currentRun: {
+			startIdx: number
+			endIdx: number
+			isFirst: boolean
+			isLast: boolean
+			length: number
+			lineOpts: PathBuilderLineOpts | undefined
+			pathIsClosed: boolean
+		} | null = null
+
+		const addCurrentRun = () => {
+			if (!currentRun) return
+			const { startIdx, endIdx, isFirst, isLast, length, lineOpts, pathIsClosed } = currentRun
+			currentRun = null
+
+			if (startIdx === endIdx && this.commands[startIdx].type === 'move') return
+
+			const start = lineOpts?.dashStart ?? opts.start
+			const end = lineOpts?.dashEnd ?? opts.end
+			const { strokeDasharray, strokeDashoffset } = getPerfectDashProps(length, strokeWidth, {
+				style,
+				snap,
+				lengthRatio,
+				start: isFirst ? (start ?? (pathIsClosed ? 'outset' : 'none')) : 'outset',
+				end: isLast ? (end ?? (pathIsClosed ? 'outset' : 'none')) : 'outset',
+			})
+
+			segments.push({
+				d: this.toD({ startIdx, endIdx: endIdx + 1 }),
+				strokeDasharray,
+				strokeDashoffset,
+			})
+		}
+
+		for (let i = 0; i < this.commands.length; i++) {
+			const command = this.commands[i]
+			const lastCommand = this.commands[i - 1]
+			if (command.type === 'move') {
+				isCurrentPathClosed = command.closeIdx !== null
+				const isFilled =
+					command.opts?.geometry === false ? false : (command.opts?.geometry?.isFilled ?? false)
+				if (opts.onlyFilled && !isFilled) {
+					isSkippingCurrentLine = true
+				} else {
+					isSkippingCurrentLine = false
+					currentLineOpts = command.opts
+				}
+				continue
+			}
+
+			if (isSkippingCurrentLine) continue
+
+			const segmentLength = this.calculateSegmentLength(lastCommand, command)
+			const isFirst = lastCommand.type === 'move'
+			const isLast =
+				command.isClose || i === this.commands.length - 1 || this.commands[i + 1]?.type === 'move'
+
+			if (currentRun && command.opts?.mergeWithPrevious) {
+				currentRun.length += segmentLength
+				currentRun.endIdx = i
+				currentRun.isLast = isLast
+			} else {
+				addCurrentRun()
+				currentRun = {
+					startIdx: i,
+					endIdx: i,
+					isFirst,
+					isLast,
+					length: segmentLength,
+					lineOpts: currentLineOpts,
+					pathIsClosed: isCurrentPathClosed,
+				}
+			}
+		}
+
+		addCurrentRun()
+
+		return segments
+	}
+
 	private toDrawSvg(_opts: DrawPathBuilderOpts): ReactNode {
 		// Svelte port: original returned React <path> JSX; only reachable via the
 		// stubbed toSvg(). Render via toDrawD() in the Svelte component instead.

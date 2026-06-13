@@ -208,9 +208,6 @@
 		gap: 8px;
 		pointer-events: all;
 	}
-	.tlui-layout__bottom-right .tlui-panel {
-		position: static;
-	}
 	/* The style panel sits below the share chrome on the right. */
 	.tlui-layout__top-right {
 		position: absolute;

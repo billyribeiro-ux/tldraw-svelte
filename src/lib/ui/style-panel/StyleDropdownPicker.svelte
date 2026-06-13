@@ -20,20 +20,37 @@
 		prop,
 		title,
 		uiType,
-		options
+		options,
+		sideOffset = 0,
+		inline = false,
+		testIdType
 	}: {
 		model: StylePanelModel;
 		prop: StyleProp<T>;
 		title: string;
 		uiType: string;
 		options: Option[];
+		sideOffset?: number;
+		// When true the trigger is an icon-only button (no title label), used inline in a
+		// toolbar row — mirrors tldraw's StylePanelDropdownPickerInline (e.g. the fill
+		// "extra" dropdown that sits next to the inline none/semi/solid buttons).
+		inline?: boolean;
+		// Override the testid prefix (defaults to uiType). The fill-extra dropdown shares
+		// uiType="fill" with the inline buttons but uses testIdType="fill-extra".
+		testIdType?: string;
 	} = $props();
 
 	let open = $state(false);
 
+	const idType = $derived(testIdType ?? uiType);
 	const current = $derived(model.getValue(prop));
 	const currentOption = $derived(options.find((o) => o.value === current));
+	// The current value isn't always one of THIS dropdown's items (e.g. the fill-extra
+	// dropdown only holds pattern/fill/lined-fill, so a "solid" selection lives in the
+	// adjacent inline buttons). When it isn't, fall back to the first item's icon — and
+	// only mark an item active when it matches the shown icon, exactly like upstream.
 	const currentIcon = $derived(currentOption?.icon ?? options[0]?.icon ?? 'geo-rectangle');
+	const valueInItems = $derived(!!currentOption);
 	// >4 options → grid (4 cols), else a single horizontal row, matching tldraw.
 	const isGrid = $derived(options.length > 4);
 
@@ -44,43 +61,61 @@
 </script>
 
 <div class="tlui-style-panel__dropdown-picker">
-	<!-- TODO(style-panel parity): upstream StylePanelDropdownPicker opens
-	     `<TldrawUiPopoverContent side="left" align="center">` so the grid flies out to
-	     the LEFT of the 148px panel. Our Popover only supports side 'top' | 'bottom'
-	     (see primitives/Popover.svelte), so we keep "bottom" here to avoid breaking it.
-	     To match upstream, Popover needs 'left'/'right' side support (anchor + flip +
-	     align="center" vertical centering), then change side to "left" align="center". -->
-	<Popover bind:open side="bottom" align="end">
+	<!-- Mirrors upstream StylePanelDropdownPicker: the grid flies out to the LEFT of the
+	     148px style panel (TldrawUiPopoverContent side="left" align="center"). Popover now
+	     supports horizontal sides; `sideOffset` pushes the flyout flush with the panel for
+	     the inline "extra" dropdowns (e.g. fill-extra). -->
+	<Popover bind:open side="left" align="center" {sideOffset}>
 		{#snippet trigger({ toggle, props })}
-			<button
-				class="tlui-style-menu-btn"
-				type="button"
-				{title}
-				aria-label="{title} — {currentOption?.label ?? 'Mixed'}"
-				data-testid="style.{uiType}"
-				data-value={current}
-				onclick={toggle}
-				{...props}
-			>
-				<span class="tlui-style-menu-btn__label">{title}</span>
-				<Icon icon={currentIcon} label="" />
-			</button>
+			{#if inline}
+				<!-- Icon-only trigger (StylePanelDropdownPickerInline): a 40px button that sits
+				     inside a toolbar row beside the inline button-picker items. -->
+				<button
+					class="tlui-style-icon-btn tlui-style-dropdown__inline-trigger"
+					class:tlui-style-icon-btn--active={valueInItems}
+					type="button"
+					title={valueInItems && currentOption ? `${title}: ${currentOption.label}` : title}
+					aria-label={valueInItems && currentOption
+						? `${title}: ${currentOption.label}`
+						: title}
+					data-testid="style.{idType}"
+					data-value={current}
+					onclick={toggle}
+					{...props}
+				>
+					<Icon icon={currentIcon} label="" />
+				</button>
+			{:else}
+				<button
+					class="tlui-style-menu-btn"
+					type="button"
+					{title}
+					aria-label="{title} — {currentOption?.label ?? 'Mixed'}"
+					data-testid="style.{idType}"
+					data-value={current}
+					onclick={toggle}
+					{...props}
+				>
+					<span class="tlui-style-menu-btn__label">{title}</span>
+					<Icon icon={currentIcon} label="" />
+				</button>
+			{/if}
 		{/snippet}
 		<div
 			class="tlui-style-dropdown__grid"
 			class:tlui-style-dropdown__grid--row={!isGrid}
 			role="radiogroup"
 			aria-label={title}
-			data-testid="style.{uiType}.menu"
+			data-testid="style.{idType}.menu"
 		>
 			{#each options as opt (opt.value)}
 				<button
 					class="tlui-style-icon-btn"
-					class:tlui-style-icon-btn--active={current === opt.value}
+					class:tlui-style-icon-btn--active={valueInItems && current === opt.value}
 					type="button"
 					role="radio"
-					aria-checked={current === opt.value}
-					data-testid="style.{uiType}.{opt.value}"
+					aria-checked={valueInItems && current === opt.value}
+					data-testid="style.{idType}.{opt.value}"
 					data-value={opt.value}
 					title="{title} — {opt.label}"
 					aria-label="{title} — {opt.label}"

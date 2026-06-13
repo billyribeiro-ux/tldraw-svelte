@@ -9,12 +9,14 @@
 		open = $bindable(false),
 		side = 'bottom',
 		align = 'start',
+		sideOffset = 0,
 		trigger,
 		children
 	}: {
 		open?: boolean;
-		side?: 'top' | 'bottom';
+		side?: 'top' | 'bottom' | 'left' | 'right';
 		align?: 'start' | 'center' | 'end';
+		sideOffset?: number;
 		trigger: Snippet<[{ open: boolean; toggle: () => void; props: Record<string, unknown> }]>;
 		children: Snippet;
 	} = $props();
@@ -59,6 +61,60 @@
 		const GAP = 6;
 		const reposition = () => {
 			if (!anchorEl) return;
+
+			// ---- Horizontal sides ('left'/'right') ----------------------------------
+			// Flyout placed to the side of the trigger (used by the style-panel dropdown
+			// pickers, which open to the LEFT of the 148px panel). `sideOffset` pushes the
+			// flyout further from the trigger (tldraw's Radix `sideOffset`). `align` picks
+			// the vertical anchoring: center against the trigger, or align top/bottom edges.
+			if (side === 'left' || side === 'right') {
+				const a = anchorEl.getBoundingClientRect();
+				const vw = window.innerWidth;
+				const width = node.offsetWidth;
+				const spaceLeft = a.left - GAP - MARGIN - sideOffset;
+				const spaceRight = vw - a.right - GAP - MARGIN - sideOffset;
+
+				let effectiveH = side;
+				if (side === 'left' && width > spaceLeft && spaceRight > spaceLeft) effectiveH = 'right';
+				else if (side === 'right' && width > spaceRight && spaceLeft > spaceRight)
+					effectiveH = 'left';
+
+				node.classList.toggle('tlui-popover__content--left', effectiveH === 'left');
+				node.classList.toggle('tlui-popover__content--right', effectiveH === 'right');
+				// Clear any vertical-side classes so a re-anchored flyout starts clean.
+				node.classList.remove('tlui-popover__content--top', 'tlui-popover__content--bottom');
+
+				// Horizontal offset from the trigger (CSS sets the base 100% + 6px gap; the
+				// extra sideOffset is applied via transform so it composes with the flip).
+				const tx =
+					effectiveH === 'left' ? `translateX(-${sideOffset}px)` : `translateX(${sideOffset}px)`;
+
+				// Vertical alignment + viewport guard. align="center" centres the flyout
+				// against the trigger; "start"/"end" line up the top/bottom edges (the CSS
+				// classes own the base alignment, we only nudge for centering + overflow).
+				const baseY = align === 'center' ? 'translateY(-50%)' : '';
+				node.style.transform = `${tx} ${baseY}`.trim();
+				const vh = window.innerHeight;
+				const r = node.getBoundingClientRect();
+				let dy = 0;
+				if (r.bottom > vh - MARGIN) dy = vh - MARGIN - r.bottom;
+				else if (r.top < MARGIN) dy = MARGIN - r.top;
+				node.style.transform = `${tx} ${baseY} ${dy ? `translateY(${dy}px)` : ''}`.trim();
+
+				// Clamp height to the viewport if the flyout is taller than the screen.
+				const natural = node.scrollHeight;
+				const vspace = vh - 2 * MARGIN;
+				if (natural > vspace) {
+					node.style.maxHeight = `${Math.max(120, vspace)}px`;
+					node.style.overflowY = 'auto';
+				} else {
+					node.style.maxHeight = '';
+					node.style.overflowY = '';
+				}
+				return;
+			}
+
+			// ---- Vertical sides ('top'/'bottom') — unchanged ------------------------
 			const a = anchorEl.getBoundingClientRect();
 			const vh = window.innerHeight;
 			const spaceBelow = vh - a.bottom - GAP - MARGIN;
@@ -152,5 +208,38 @@
 	}
 	.tlui-popover__content--end {
 		right: 0;
+	}
+
+	/* ---- Horizontal sides ('left'/'right') ----------------------------------
+	   The flyout sits to the side of the trigger. These compound selectors win on
+	   specificity over the generic align rules above, so the same --start/--center/
+	   --end tokens drive VERTICAL anchoring here (top/center/bottom) instead of the
+	   horizontal anchoring they drive for top/bottom sides. The JS `positionContent`
+	   layers the sideOffset + viewport nudge on top via `transform`. */
+	.tlui-popover__content--left {
+		right: calc(100% + 6px);
+		left: auto;
+	}
+	.tlui-popover__content--right {
+		left: calc(100% + 6px);
+		right: auto;
+	}
+	.tlui-popover__content--left.tlui-popover__content--start,
+	.tlui-popover__content--right.tlui-popover__content--start {
+		top: 0;
+		bottom: auto;
+	}
+	.tlui-popover__content--left.tlui-popover__content--center,
+	.tlui-popover__content--right.tlui-popover__content--center {
+		top: 50%;
+		bottom: auto;
+		/* JS overwrites transform with translateY(-50%) (+ offsets); this is the
+		   no-JS fallback so the flyout is still vertically centred. */
+		transform: translateY(-50%);
+	}
+	.tlui-popover__content--left.tlui-popover__content--end,
+	.tlui-popover__content--right.tlui-popover__content--end {
+		bottom: 0;
+		top: auto;
 	}
 </style>
