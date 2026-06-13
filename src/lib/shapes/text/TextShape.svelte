@@ -22,15 +22,32 @@
 	const align = $derived(shape.props.textAlign === 'middle' ? 'center' : shape.props.textAlign);
 </script>
 
-<RichTextLabel
-	shapeId={shape.id}
-	type="text"
-	richText={shape.props.richText}
-	fontFamily={dv.fontFamily}
-	fontSize={dv.fontSize}
-	lineHeight={dv.lineHeight}
-	textAlign={align}
-	verticalAlign="middle"
-	labelColor={dv.color}
-	wrap
-/>
+<!-- tldraw's TextShapeUtil renders the RichTextLabel with
+     `transform: scale(props.scale); transform-origin: top left` so a resized /
+     scaled text shape sizes correctly (the geometry is also multiplied by
+     scale). We wrap the label in a scaling div to reproduce that. -->
+<div
+	class="tl-text-scale"
+	style:transform="scale({shape.props.scale})"
+	style:transform-origin="top left"
+>
+	<RichTextLabel
+		shapeId={shape.id}
+		type="text"
+		richText={shape.props.richText}
+		fontFamily={dv.fontFamily}
+		fontSize={dv.fontSize}
+		lineHeight={dv.lineHeight}
+		textAlign={align}
+		verticalAlign="middle"
+		labelColor={dv.color}
+		wrap
+	/>
+</div>
+
+<style>
+	.tl-text-scale {
+		position: absolute;
+		inset: 0;
+	}
+</style>

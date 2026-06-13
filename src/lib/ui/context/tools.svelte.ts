@@ -28,8 +28,9 @@ export const [getTools, setTools] = createContext<ToolsRegistry>();
 /**
  * The toolbar order, matching tldraw's `DefaultToolbarContent` exactly: select,
  * hand, draw, eraser, arrow, text, note, then every geo variant as its own flat
- * button (rectangle, ellipse, triangle, diamond, hexagon, oval, rhombus, star,
- * cloud, heart, x-box, check-box, the 4 geo arrows), then line, highlight, frame.
+ * button (rectangle, ellipse, triangle, diamond, pentagon, hexagon, octagon, star,
+ * rhombus, rhombus-2, oval, trapezoid, cloud, heart, x-box, check-box, the 4 geo
+ * arrows — ordered to follow `GeoShapeGeoStyle.values`), then line, highlight, frame.
  * (Asset + Laser are omitted — no asset tool / LaserTool is wired in this port.)
  *
  * @public
@@ -46,10 +47,14 @@ export const TOOLBAR_ORDER = [
 	'geo-ellipse',
 	'geo-triangle',
 	'geo-diamond',
+	'geo-pentagon',
 	'geo-hexagon',
-	'geo-oval',
-	'geo-rhombus',
+	'geo-octagon',
 	'geo-star',
+	'geo-rhombus',
+	'geo-rhombus-2',
+	'geo-oval',
+	'geo-trapezoid',
 	'geo-cloud',
 	'geo-heart',
 	'geo-x-box',
@@ -76,7 +81,7 @@ export function createDefaultTools(editor: Editor): ToolsRegistry {
 	const simple: Array<{ id: string; label: string; icon: string; kbd?: string }> = [
 		{ id: 'select', label: 'Select', icon: 'tool-select', kbd: 'v' },
 		{ id: 'hand', label: 'Hand', icon: 'tool-hand', kbd: 'h' },
-		{ id: 'draw', label: 'Draw', icon: 'tool-draw', kbd: 'd' },
+		{ id: 'draw', label: 'Draw', icon: 'tool-draw', kbd: 'd,b,x' },
 		{ id: 'eraser', label: 'Eraser', icon: 'tool-eraser', kbd: 'e' },
 		{ id: 'arrow', label: 'Arrow', icon: 'tool-arrow', kbd: 'a' },
 		{ id: 'text', label: 'Text', icon: 'tool-text', kbd: 't' },
@@ -100,10 +105,14 @@ export function createDefaultTools(editor: Editor): ToolsRegistry {
 		{ id: 'geo-ellipse', label: 'Ellipse', icon: 'geo-ellipse', geo: 'ellipse', kbd: 'o' },
 		{ id: 'geo-triangle', label: 'Triangle', icon: 'geo-triangle', geo: 'triangle' },
 		{ id: 'geo-diamond', label: 'Diamond', icon: 'geo-diamond', geo: 'diamond' },
+		{ id: 'geo-pentagon', label: 'Pentagon', icon: 'geo-pentagon', geo: 'pentagon' },
 		{ id: 'geo-hexagon', label: 'Hexagon', icon: 'geo-hexagon', geo: 'hexagon' },
-		{ id: 'geo-oval', label: 'Oval', icon: 'geo-oval', geo: 'oval' },
-		{ id: 'geo-rhombus', label: 'Rhombus', icon: 'geo-rhombus', geo: 'rhombus' },
+		{ id: 'geo-octagon', label: 'Octagon', icon: 'geo-octagon', geo: 'octagon' },
 		{ id: 'geo-star', label: 'Star', icon: 'geo-star', geo: 'star' },
+		{ id: 'geo-rhombus', label: 'Rhombus', icon: 'geo-rhombus', geo: 'rhombus' },
+		{ id: 'geo-rhombus-2', label: 'Rhombus 2', icon: 'geo-rhombus-2', geo: 'rhombus-2' },
+		{ id: 'geo-oval', label: 'Oval', icon: 'geo-oval', geo: 'oval' },
+		{ id: 'geo-trapezoid', label: 'Trapezoid', icon: 'geo-trapezoid', geo: 'trapezoid' },
 		{ id: 'geo-cloud', label: 'Cloud', icon: 'geo-cloud', geo: 'cloud' },
 		{ id: 'geo-heart', label: 'Heart', icon: 'geo-heart', geo: 'heart' },
 		{ id: 'geo-x-box', label: 'X Box', icon: 'geo-x-box', geo: 'x-box' },

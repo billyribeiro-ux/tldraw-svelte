@@ -14,6 +14,7 @@
 		icon,
 		kbd,
 		checked,
+		isActive = false,
 		disabled = false,
 		onSelect,
 		children
@@ -22,10 +23,16 @@
 		icon?: string;
 		kbd?: string;
 		checked?: boolean;
+		isActive?: boolean;
 		disabled?: boolean;
 		onSelect?: () => void;
 		children?: Snippet;
 	} = $props();
+
+	// Keyboard navigation (arrow keys) highlights an item without hovering it;
+	// tldraw mirrors Radix's data-highlighted. Pointer movement clears it so the
+	// pointer takes over (matching tldraw's "highlight follows pointer").
+	let highlighted = $state(false);
 </script>
 
 <button
@@ -34,10 +41,15 @@
 	type="button"
 	{disabled}
 	aria-checked={checked === undefined ? undefined : checked}
+	data-isactive={isActive}
+	data-highlighted={highlighted ? '' : undefined}
 	onclick={() => {
 		onSelect?.();
 		closePopover?.();
 	}}
+	onpointermove={() => (highlighted = false)}
+	onfocus={() => (highlighted = true)}
+	onblur={() => (highlighted = false)}
 >
 	{#if checked !== undefined}
 		<span class="tlui-menu-item__check" aria-hidden="true">{checked ? '✓' : ''}</span>
@@ -45,7 +57,9 @@
 	{#if icon}
 		<span class="tlui-menu-item__icon"><Icon {icon} small /></span>
 	{/if}
-	<span class="tlui-menu-item__label">{label}{#if children}{@render children()}{/if}</span>
+	<span class="tlui-menu-item__label"
+		>{label}{#if children}{@render children()}{/if}</span
+	>
 	{#if kbd}
 		<span class="tlui-menu-item__kbd"><Kbd {kbd} /></span>
 	{/if}
@@ -53,6 +67,7 @@
 
 <style>
 	.tlui-menu-item {
+		position: relative;
 		display: flex;
 		align-items: center;
 		gap: 8px;
@@ -63,13 +78,31 @@
 		border-radius: 6px;
 		background: transparent;
 		color: var(--tl-color-text, #1d1d1d);
-		font:
-			500 13px/1 var(--tl-font-sans);
+		font: 500 13px/1 var(--tl-font-sans);
 		text-align: left;
 		cursor: pointer;
+		z-index: 0;
 	}
-	.tlui-menu-item:hover:not(:disabled) {
-		background: var(--tl-color-hover, #f0f0f0);
+	/* Inset overlay highlight (tldraw ui.css:101-119): a 4px-inset rounded rect
+	   that is ALWAYS --tl-color-muted-2 with opacity toggled 0 → 1 on hover or
+	   keyboard highlight. Active swaps the background to --tl-color-hint, so the
+	   selected fill never greys out under hover. */
+	.tlui-menu-item::after {
+		content: '';
+		position: absolute;
+		inset: 4px;
+		border-radius: var(--tl-radius-2, 6px);
+		background: var(--tl-color-muted-2, hsl(0, 0%, 0%, 4.3%));
+		opacity: 0;
+		z-index: -1;
+	}
+	.tlui-menu-item:hover:not(:disabled)::after,
+	.tlui-menu-item[data-highlighted]:not(:disabled)::after {
+		opacity: 1;
+	}
+	.tlui-menu-item[data-isactive='true']::after {
+		background: var(--tl-color-hint, hsl(0, 0%, 0%, 5.5%));
+		opacity: 1;
 	}
 	.tlui-menu-item:disabled {
 		opacity: 0.4;

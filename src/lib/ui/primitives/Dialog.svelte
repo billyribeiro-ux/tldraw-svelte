@@ -86,7 +86,8 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		background: rgba(0, 0, 0, 0.3);
+		/* tldraw ui.css:1685-1699 uses the --tl-color-overlay token. */
+		background: var(--tl-color-overlay, hsl(0, 0%, 0%, 20%));
 	}
 	.tlui-dialog__panel {
 		min-width: 320px;
@@ -94,7 +95,8 @@
 		max-height: 85vh;
 		overflow: auto;
 		background: var(--tl-color-panel, #fff);
-		border-radius: var(--tl-radius-4, 11px);
+		/* tldraw dialog content uses radius-3, not radius-4 (ui.css:1708). */
+		border-radius: var(--tl-radius-3, 9px);
 		box-shadow: var(--tl-shadow-3);
 		outline: none;
 	}
@@ -102,13 +104,17 @@
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
-		padding: 12px 16px;
+		/* Fixed 40px header (tldraw ui.css:1716-1725). */
+		height: 40px;
+		padding: 0 16px;
 		border-bottom: 1px solid var(--tl-color-divider, #e8e8e8);
 	}
 	.tlui-dialog__title {
 		margin: 0;
-		font:
-			600 15px/1.2 var(--tl-font-sans);
+		/* 12px, inherited weight — not 15px/600 (tldraw ui.css:1727-1733). */
+		font-family: var(--tl-font-sans);
+		font-size: 12px;
+		font-weight: inherit;
 	}
 	.tlui-dialog__close {
 		border: none;
@@ -122,6 +128,7 @@
 		background: var(--tl-color-hover, #f0f0f0);
 	}
 	.tlui-dialog__body {
-		padding: 16px;
+		/* tldraw ui.css:1739-1740: padding is the --tl-space-4 token. */
+		padding: var(--tl-space-4, 12px);
 	}
 </style>

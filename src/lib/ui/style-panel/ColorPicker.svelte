@@ -37,8 +37,9 @@
 </div>
 
 <style>
-	/* tldraw's color grid: 4 equal columns that fit the 148px panel (1fr, not fixed
-	   40px which would overflow). Buttons stay square via aspect-ratio. */
+	/* tldraw's color grid (.tlui-grid): 4 equal columns, `padding: 2px`. Each swatch
+	   is a FIXED 40px square (matching .tlui-toolbar-toggle-group-item), not a 1fr
+	   cell stretched square via aspect-ratio. */
 	.tlui-color-grid {
 		display: grid;
 		grid-template-columns: repeat(4, 1fr);
@@ -51,9 +52,9 @@
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;
-		width: 100%;
+		width: 40px;
+		height: 40px;
 		min-width: 0;
-		aspect-ratio: 1;
 		padding: 0;
 		border: none;
 		background: transparent;
@@ -71,7 +72,11 @@
 	.tlui-color-btn:hover::after {
 		background: var(--tl-color-muted-2, rgba(0, 0, 0, 0.043));
 	}
-	.tlui-color-btn--active::after {
+	/* Selected swatch keeps its --tl-color-hint highlight on hover (a bare :hover::after
+	   would otherwise outrank --active::after and make the highlight vanish), matching
+	   StylePropPicker. */
+	.tlui-color-btn--active::after,
+	.tlui-color-btn--active:hover::after {
 		background: var(--tl-color-hint, rgba(0, 0, 0, 0.055));
 	}
 </style>

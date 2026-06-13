@@ -18,13 +18,18 @@
 		return out;
 	}
 
-	const keys = $derived(
-		kbd.includes('+') ? kbd.split('+').map((s) => s.trim()) : expand(kbd)
-	);
+	// A kbd may carry several comma-separated variants (e.g. "$=,=", "d,b,x"); show
+	// only the FIRST, like tldraw's hint display.
+	const keys = $derived.by(() => {
+		const first = (kbd.split(',')[0] ?? '').trim();
+		return first.includes('+') ? first.split('+').map((s) => s.trim()) : expand(first);
+	});
 </script>
 
 <kbd class="tlui-kbd">
-	{#each keys as key (key)}
+	<!-- Key by index, not value: a kbd like "=" or "-" can repeat the same glyph
+	     (e.g. accel+= and bare =), which would throw each_key_duplicate. -->
+	{#each keys as key, i (i)}
 		<span class="tlui-kbd__key">{key}</span>
 	{/each}
 </kbd>
@@ -33,11 +38,15 @@
 	.tlui-kbd {
 		display: inline-flex;
 		gap: 2px;
-		font:
-			500 11px/1 var(--tl-font-sans);
+		font: 500 11px/1 var(--tl-font-sans);
+		/* Push the keycaps off the preceding label (tldraw ui.css:598-627). */
+		margin-inline-start: var(--tl-space-4, 12px);
 	}
 	.tlui-kbd__key {
 		min-width: 1em;
 		text-align: center;
+		/* Keycap chrome: small padding + rounded corners (tldraw ui.css:612-619). */
+		padding: 2px;
+		border-radius: 2px;
 	}
 </style>

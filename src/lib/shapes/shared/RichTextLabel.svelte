@@ -64,6 +64,12 @@
 	const alignItems = $derived(FLEX[textAlign] ?? 'center');
 	const justifyContent = $derived(FLEX[verticalAlign] ?? 'center');
 
+	// tldraw's resolveLineHeightPx: render line-height as Math.round(fontSize *
+	// lineHeight)px (an absolute pixel value) rather than the unitless multiplier,
+	// so each line takes the same vertical space the engine's text measurement
+	// assumes and multi-line labels don't drift. Mirrors RichTextLabel.tsx.
+	const lineHeightPx = $derived(Math.round(fontSize * lineHeight));
+
 	function commit(e: Event) {
 		const el = e.currentTarget as HTMLElement;
 		const next = richTextFromHtml(el.innerHTML);
@@ -101,7 +107,7 @@
 		data-editing={isEditing}
 		style:font-family={fontFamily}
 		style:font-size="{fontSize}px"
-		style:line-height={lineHeight}
+		style:line-height="{lineHeightPx}px"
 		style:text-align={textAlign}
 		style:align-items={alignItems}
 		style:justify-content={justifyContent}

@@ -44,6 +44,12 @@
 </script>
 
 <div class="tlui-style-panel__dropdown-picker">
+	<!-- TODO(style-panel parity): upstream StylePanelDropdownPicker opens
+	     `<TldrawUiPopoverContent side="left" align="center">` so the grid flies out to
+	     the LEFT of the 148px panel. Our Popover only supports side 'top' | 'bottom'
+	     (see primitives/Popover.svelte), so we keep "bottom" here to avoid breaking it.
+	     To match upstream, Popover needs 'left'/'right' side support (anchor + flip +
+	     align="center" vertical centering), then change side to "left" align="center". -->
 	<Popover bind:open side="bottom" align="end">
 		{#snippet trigger({ toggle, props })}
 			<button

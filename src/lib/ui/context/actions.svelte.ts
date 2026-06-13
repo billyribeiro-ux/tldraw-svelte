@@ -72,7 +72,14 @@ export function createDefaultActions(editor: Editor, toasts?: ToastStore): Actio
 			kbd: '$d',
 			onSelect: () => {
 				const ids = editor.getSelectedShapeIds();
-				if (ids.length) editor.duplicateShapes(ids, { x: 16, y: 16 });
+				if (!ids.length) return;
+				// Offset the copies one selection-width to the right (plus a small
+				// margin), matching tldraw's duplicate behavior, instead of the old
+				// hardcoded 16,16. Falls back to a small offset if bounds are missing.
+				const bounds = editor.getSelectionPageBounds();
+				const offset = bounds ? { x: bounds.width + 16, y: 0 } : { x: 16, y: 16 };
+				editor.markHistoryStoppingPoint('duplicate shapes');
+				editor.duplicateShapes(ids, offset);
 			}
 		},
 		{
@@ -125,8 +132,19 @@ export function createDefaultActions(editor: Editor, toasts?: ToastStore): Actio
 			icon: 'group',
 			kbd: '$g',
 			onSelect: () => {
-				const ids = editor.getSelectedShapeIds();
-				if (ids.length > 1) editor.groupShapes(ids);
+				// Toggle: if exactly one group is selected, ungroup it; otherwise group
+				// the current selection (matching tldraw's `group` action).
+				const onlySelected = editor.getOnlySelectedShape();
+				if (onlySelected && editor.isShapeOfType(onlySelected, 'group')) {
+					editor.markHistoryStoppingPoint('ungroup');
+					editor.ungroupShapes(editor.getSelectedShapeIds());
+				} else {
+					const ids = editor.getSelectedShapeIds();
+					if (ids.length > 1) {
+						editor.markHistoryStoppingPoint('group');
+						editor.groupShapes(ids);
+					}
+				}
 			}
 		},
 		{
@@ -134,43 +152,52 @@ export function createDefaultActions(editor: Editor, toasts?: ToastStore): Actio
 			label: 'Ungroup',
 			icon: 'ungroup',
 			kbd: '$!g',
-			onSelect: () => editor.ungroupShapes(editor.getSelectedShapeIds())
+			onSelect: () => {
+				editor.markHistoryStoppingPoint('ungroup');
+				editor.ungroupShapes(editor.getSelectedShapeIds());
+			}
 		},
 		// --- arrange ---
 		{
 			id: 'align-left',
 			label: 'Align left',
 			icon: 'align-left',
+			kbd: '?a',
 			onSelect: () => editor.alignShapes(editor.getSelectedShapeIds(), 'left')
 		},
 		{
 			id: 'align-center-horizontal',
 			label: 'Align center horizontal',
 			icon: 'align-center-horizontal',
+			kbd: '?h',
 			onSelect: () => editor.alignShapes(editor.getSelectedShapeIds(), 'center-horizontal')
 		},
 		{
 			id: 'align-right',
 			label: 'Align right',
 			icon: 'align-right',
+			kbd: '?d',
 			onSelect: () => editor.alignShapes(editor.getSelectedShapeIds(), 'right')
 		},
 		{
 			id: 'align-top',
 			label: 'Align top',
 			icon: 'align-top',
+			kbd: '?w',
 			onSelect: () => editor.alignShapes(editor.getSelectedShapeIds(), 'top')
 		},
 		{
 			id: 'align-center-vertical',
 			label: 'Align center vertical',
 			icon: 'align-center-vertical',
+			kbd: '?v',
 			onSelect: () => editor.alignShapes(editor.getSelectedShapeIds(), 'center-vertical')
 		},
 		{
 			id: 'align-bottom',
 			label: 'Align bottom',
 			icon: 'align-bottom',
+			kbd: '?s',
 			onSelect: () => editor.alignShapes(editor.getSelectedShapeIds(), 'bottom')
 		},
 		{
@@ -189,12 +216,14 @@ export function createDefaultActions(editor: Editor, toasts?: ToastStore): Actio
 			id: 'distribute-horizontal',
 			label: 'Distribute horizontally',
 			icon: 'distribute-horizontal',
+			kbd: '!?h',
 			onSelect: () => editor.distributeShapes(editor.getSelectedShapeIds(), 'horizontal')
 		},
 		{
 			id: 'distribute-vertical',
 			label: 'Distribute vertically',
 			icon: 'distribute-vertical',
+			kbd: '!?v',
 			onSelect: () => editor.distributeShapes(editor.getSelectedShapeIds(), 'vertical')
 		},
 		{
@@ -221,12 +250,14 @@ export function createDefaultActions(editor: Editor, toasts?: ToastStore): Actio
 			id: 'bring-forward',
 			label: 'Bring forward',
 			icon: 'bring-forward',
+			kbd: '?]',
 			onSelect: () => editor.bringForward(editor.getSelectedShapeIds())
 		},
 		{
 			id: 'send-backward',
 			label: 'Send backward',
 			icon: 'send-backward',
+			kbd: '?[',
 			onSelect: () => editor.sendBackward(editor.getSelectedShapeIds())
 		},
 		{
@@ -241,6 +272,7 @@ export function createDefaultActions(editor: Editor, toasts?: ToastStore): Actio
 			id: 'rotate-cw',
 			label: 'Rotate clockwise',
 			icon: 'rotate-cw',
+			kbd: '!.',
 			onSelect: () => {
 				const ids = editor.getSelectedShapeIds();
 				if (ids.length) {
@@ -253,6 +285,7 @@ export function createDefaultActions(editor: Editor, toasts?: ToastStore): Actio
 			id: 'rotate-ccw',
 			label: 'Rotate counter-clockwise',
 			icon: 'rotate-ccw',
+			kbd: '!,',
 			onSelect: () => {
 				const ids = editor.getSelectedShapeIds();
 				if (ids.length) {
@@ -279,7 +312,7 @@ export function createDefaultActions(editor: Editor, toasts?: ToastStore): Actio
 			id: 'zoom-in',
 			label: 'Zoom in',
 			icon: 'zoom-in',
-			kbd: '$=',
+			kbd: '$=,=',
 			readonlyOk: true,
 			onSelect: () => editor.zoomIn()
 		},
@@ -287,13 +320,14 @@ export function createDefaultActions(editor: Editor, toasts?: ToastStore): Actio
 			id: 'zoom-out',
 			label: 'Zoom out',
 			icon: 'zoom-out',
-			kbd: '$-',
+			kbd: '$-,-',
 			readonlyOk: true,
 			onSelect: () => editor.zoomOut()
 		},
 		{
 			id: 'zoom-to-100',
 			label: 'Zoom to 100%',
+			icon: 'reset-zoom',
 			kbd: '!0',
 			readonlyOk: true,
 			onSelect: () => editor.resetZoom()
@@ -311,13 +345,6 @@ export function createDefaultActions(editor: Editor, toasts?: ToastStore): Actio
 			kbd: '!2',
 			readonlyOk: true,
 			onSelect: () => editor.zoomToSelection()
-		},
-		{
-			id: 'reset-zoom',
-			label: 'Reset zoom',
-			kbd: '!0',
-			readonlyOk: true,
-			onSelect: () => editor.resetZoom()
 		},
 		{
 			id: 'toggle-grid',
