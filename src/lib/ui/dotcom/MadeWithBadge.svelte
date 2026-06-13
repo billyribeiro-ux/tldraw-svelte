@@ -3,7 +3,12 @@
 	// out anywhere.
 </script>
 
-<div class="tlui-made-with" data-testid="made-with-tldraw" aria-label="Made with tldraw" role="img">
+<div
+	class="tlui-made-with"
+	data-testid="made-with-tldraw"
+	aria-label="Made with Dev Draw"
+	role="img"
+>
 	<span class="tlui-made-with__pre">MADE WITH</span>
 	<span class="tlui-made-with__mark" aria-hidden="true">
 		<svg viewBox="0 0 20 20" width="12" height="12" fill="none">
@@ -16,7 +21,7 @@
 			/>
 		</svg>
 	</span>
-	<span class="tlui-made-with__word">TLDRAW</span>
+	<span class="tlui-made-with__word">DEV DRAW</span>
 </div>
 
 <style>
