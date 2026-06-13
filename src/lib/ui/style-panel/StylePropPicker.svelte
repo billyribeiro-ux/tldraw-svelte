@@ -61,13 +61,16 @@
 
 <style>
 	/* Row layout (<=4 items) — tldraw's TldrawUiRow (.tlui-row: `padding: 0 2px`).
-	   Items are a FIXED 40px each (matching .tlui-toolbar-toggle-group-item), not
-	   flex-stretched to fill the panel. */
+	   The 148px panel holds 4 items; they flex-fill the row (≈40px each) so the 4th
+	   never clips the panel edge (fixed 40px×4 = 160 > 148 would overflow). */
 	.tlui-style-row {
 		display: flex;
 		flex-direction: row;
 		gap: 0;
 		padding: 0 2px;
+	}
+	.tlui-style-row .tlui-style-icon-btn {
+		flex: 1 1 0;
 	}
 	/* Grid layout (>4 items) — tldraw's TldrawUiGrid (4 equal columns). */
 	.tlui-style-row--grid {
@@ -82,7 +85,7 @@
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;
-		width: 40px;
+		width: 100%;
 		min-width: 0;
 		height: 40px;
 		padding: 0;

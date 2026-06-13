@@ -37,9 +37,9 @@
 </div>
 
 <style>
-	/* tldraw's color grid (.tlui-grid): 4 equal columns, `padding: 2px`. Each swatch
-	   is a FIXED 40px square (matching .tlui-toolbar-toggle-group-item), not a 1fr
-	   cell stretched square via aspect-ratio. */
+	/* tldraw's color grid (.tlui-grid): 4 equal columns, `padding: 2px`. Swatches fill
+	   their 1fr cell (square via aspect-ratio) so the 4 columns fit the 148px panel —
+	   a fixed 40px×4 = 160 would overflow and clip the 4th column. */
 	.tlui-color-grid {
 		display: grid;
 		grid-template-columns: repeat(4, 1fr);
@@ -52,8 +52,8 @@
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;
-		width: 40px;
-		height: 40px;
+		width: 100%;
+		aspect-ratio: 1;
 		min-width: 0;
 		padding: 0;
 		border: none;
